@@ -3,7 +3,7 @@ package com.vanillaplacepicker.presentation.common
 import android.os.Bundle
 import androidx.annotation.CallSuper
 
-abstract class BaseViewModelActivity<T : BaseViewModel> : BaseActivity() {
+abstract class VanillaBaseViewModelActivity<T : VanillaBaseViewModel> : VanillaBaseActivity() {
 
     protected val viewModel by lazy { buildViewModel() }
 

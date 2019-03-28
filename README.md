@@ -1,4 +1,6 @@
 # Vanilla Place Picker
+[![](https://jitpack.io/v/Mindinventory/VanillaPlacePicker.svg)](https://jitpack.io/#Mindinventory/VanillaPlacePicker)
+
 Vanilla Place Picker provides a UI that displays an interactive map to get the place details and Autocomplete functionality, which displays place predictions based on user search input.
 
 ### Preview

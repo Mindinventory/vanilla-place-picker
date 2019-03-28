@@ -9,7 +9,7 @@
 
     <!-- AppTheme NoActionBar Translucent StatusBar -->
     <style name="AppTheme.TranslucentStatus">
-        <item name="android:windowTranslucentStatus">true</item> <!--Attribute support: After v-21-->
+        <item name="android:windowTranslucentStatus">true
+        </item> <!--Attribute support: After v-19-->
     </style>
-
 </resources>

@@ -6,7 +6,7 @@ import com.vanillaplacepicker.data.SearchAddressResponse
 import com.vanillaplacepicker.domain.common.Resource
 import com.vanillaplacepicker.domain.common.Status
 import com.vanillaplacepicker.domain.repository.WebApiClient
-import com.vanillaplacepicker.presentation.common.BaseViewModel
+import com.vanillaplacepicker.presentation.common.VanillaBaseViewModel
 import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.Logger
 import io.reactivex.Observable
@@ -14,7 +14,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
-class VanillaAutocompleteViewModel : BaseViewModel() {
+class VanillaAutocompleteViewModelVanilla : VanillaBaseViewModel() {
 
     val autoCompleteLiveData = MutableLiveData<Resource<SearchAddressResponse>>()
     val showClearButtonLiveData = MutableLiveData<Boolean>()

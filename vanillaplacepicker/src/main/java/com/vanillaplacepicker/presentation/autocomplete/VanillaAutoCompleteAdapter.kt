@@ -8,8 +8,8 @@ import com.vanillaplacepicker.data.SearchAddressResponse
 import com.vanillaplacepicker.extenstion.inflate
 import kotlinx.android.synthetic.main.row_auto_complete_place.view.*
 
-class MiAutoCompleteAdapter(private val onItemSelected: (data: SearchAddressResponse.Results) -> Unit) :
-        RecyclerView.Adapter<MiAutoCompleteAdapter.MiAutoCompleteViewHolder>() {
+class VanillaAutoCompleteAdapter(private val onItemSelected: (data: SearchAddressResponse.Results) -> Unit) :
+        RecyclerView.Adapter<VanillaAutoCompleteAdapter.MiAutoCompleteViewHolder>() {
 
     var placeList = ArrayList<SearchAddressResponse.Results>()
 

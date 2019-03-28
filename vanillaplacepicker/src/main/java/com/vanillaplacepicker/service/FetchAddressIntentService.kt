@@ -25,7 +25,7 @@ class FetchAddressIntentService : IntentService("FetchAddressIntentService") {
     /**
      * Tries to get the location address using a Geocoder. If successful, sends an address to a
      * result receiver. If unsuccessful, sends an error message instead.
-     * Note: We define a [android.os.ResultReceiver] in * VanillaMapActivity to process content
+     * Note: We define a [android.os.ResultReceiver] in * VanillaMapActivityVanilla to process content
      * sent from this service.
      *
      * This service calls this method from the default worker thread with the intent that started
