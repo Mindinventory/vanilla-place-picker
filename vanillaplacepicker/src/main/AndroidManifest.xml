@@ -1,0 +1,26 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.vanillaplacepicker">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <application
+        android:name="com.vanillaplacepicker.presentation.app.VanillaPlacePickerApp"
+        android:label="@string/app_name"
+        android:supportsRtl="true">
+
+        <activity
+            android:name="com.vanillaplacepicker.presentation.autocomplete.VanillaAutocompleteActivity"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name="com.vanillaplacepicker.presentation.map.VanillaMapActivity"
+            android:theme="@style/AppTheme.TranslucentStatus" />
+
+        <service
+            android:name="com.vanillaplacepicker.service.FetchAddressIntentService"
+            android:exported="false" />
+
+    </application>
+</manifest>

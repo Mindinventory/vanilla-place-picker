@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">VanillaPlacePicker</string>
+    <string name="no_location_data_provided">No location data provided</string>
+    <string name="service_not_available">Sorry, the service is not available</string>
+    <string name="invalid_lat_long_used">Invalid latitude or longitude used</string>
+    <string name="no_address_found">Sorry, no address found</string>
+    <string name="address_found">Address found</string>
+    <string name="no_suggestion_found">No suggestion found.</string>
+    <string name="user_agreed_to_make_required_location_settings_changes">User agreed to make required location settings
+        changes.
+    </string>
+    <string name="user_chose_not_to_make_required_location_settings_changes">User chose not to make required location
+        settings changes.
+    </string>
+    <string name="user_interaction_was_cancelled">User interaction was cancelled.</string>
+    <string name="all_location_settings_are_satisfied">All location settings are satisfied.</string>
+    <string name="location_settings_are_not_satisfied">Location settings are not satisfied. Attempting to upgrade
+        location settings
+    </string>
+    <string name="pendingintent_unable_to_execute_request">PendingIntent unable to execute request.</string>
+    <string name="location_settings_are_inadequate_and_cannot_be_fixed_here">Location settings are inadequate and cannot
+        be fixed here. Fix in Settings.
+    </string>
+    <string name="missing_permission_title">Missing Permission</string>
+    <string name="missing_permission_message">Please allow us to access your permission to serve you better.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="permission">Permission</string>
+
+    <!--Map Activity-->
+    <string name="searching">Searching…</string>
+
+    <!--Auto Complete Activity-->
+    <string name="enter_address_place">Enter an address or place</string>
+    <string name="search_results_appear_here">Search results appear here</string>
+</resources>
