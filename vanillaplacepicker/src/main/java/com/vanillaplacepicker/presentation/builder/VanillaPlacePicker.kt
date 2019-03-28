@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.vanillaplacepicker.extenstion.isRequiredField
-import com.vanillaplacepicker.presentation.autocomplete.VanillaAutocompleteActivityVanilla
-import com.vanillaplacepicker.presentation.map.VanillaMapActivityVanilla
+import com.vanillaplacepicker.presentation.autocomplete.VanillaAutocompleteActivity
+import com.vanillaplacepicker.presentation.map.VanillaMapActivity
 import com.vanillaplacepicker.utils.BundleUtils
 import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.Logger
@@ -170,9 +170,9 @@ class VanillaPlacePicker {
 
         fun build() {
             val intent = if (isMapEnable) {
-                Intent(context, VanillaMapActivityVanilla::class.java)
+                Intent(context, VanillaMapActivity::class.java)
             } else {
-                Intent(context, VanillaAutocompleteActivityVanilla::class.java)
+                Intent(context, VanillaAutocompleteActivity::class.java)
             }
             val metadataBundle: Bundle = BundleUtils.getMetaData(context)
             if(metadataBundle.getString("com.google.android.geo.API_KEY").isRequiredField())

@@ -10,11 +10,11 @@
         android:supportsRtl="true">
 
         <activity
-            android:name="com.vanillaplacepicker.presentation.autocomplete.VanillaAutocompleteActivityVanilla"
+            android:name="com.vanillaplacepicker.presentation.autocomplete.VanillaAutocompleteActivity"
             android:theme="@style/AppTheme" />
 
         <activity
-            android:name="com.vanillaplacepicker.presentation.map.VanillaMapActivityVanilla"
+            android:name="com.vanillaplacepicker.presentation.map.VanillaMapActivity"
             android:theme="@style/AppTheme.TranslucentStatus" />
 
         <service

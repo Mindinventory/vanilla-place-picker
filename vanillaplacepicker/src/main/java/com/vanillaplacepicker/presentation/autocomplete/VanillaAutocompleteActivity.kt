@@ -23,9 +23,9 @@ import com.vanillaplacepicker.utils.Logger
 import kotlinx.android.synthetic.main.activity_mi_placepicker.*
 import kotlinx.android.synthetic.main.lo_recyclremptyvw_appearhere.*
 
-class VanillaAutocompleteActivityVanilla : VanillaBaseViewModelActivity<VanillaAutocompleteViewModelVanilla>(), View.OnClickListener {
+class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocompleteViewModel>(), View.OnClickListener {
 
-    private val TAG = VanillaAutocompleteActivityVanilla::class.java.simpleName
+    private val TAG = VanillaAutocompleteActivity::class.java.simpleName
     private var apiKey = ""
     private var region: String? = null
     private var latitude: Double? = null
@@ -165,8 +165,8 @@ class VanillaAutocompleteActivityVanilla : VanillaBaseViewModelActivity<VanillaA
         }
     }
 
-    override fun buildViewModel(): VanillaAutocompleteViewModelVanilla {
-        return ViewModelProviders.of(this)[VanillaAutocompleteViewModelVanilla::class.java]
+    override fun buildViewModel(): VanillaAutocompleteViewModel {
+        return ViewModelProviders.of(this)[VanillaAutocompleteViewModel::class.java]
     }
 
     override fun initLiveDataObservers() {

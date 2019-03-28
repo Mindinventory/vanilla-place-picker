@@ -5,7 +5,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.vanillaplacepicker.presentation.app.VanillaPlacePickerApp.Companion.sharedPrefs
 import com.vanillaplacepicker.presentation.common.VanillaBaseViewModel
 
-class VanillaMapViewModelVanilla : VanillaBaseViewModel() {
+class VanillaMapViewModel : VanillaBaseViewModel() {
 
     var latLngLiveData = MutableLiveData<LatLng>()
 

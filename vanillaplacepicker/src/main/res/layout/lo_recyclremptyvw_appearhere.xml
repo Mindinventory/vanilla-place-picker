@@ -11,11 +11,10 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="250dp"
         android:layout_height="180dp"
         android:layout_gravity="center"
-        android:contentDescription="@string/app_name"
         app:srcCompat="@drawable/ic_undraw_search" />
 
     <TextView

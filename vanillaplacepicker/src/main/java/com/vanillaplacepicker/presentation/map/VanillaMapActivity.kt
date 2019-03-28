@@ -26,7 +26,7 @@ import com.vanillaplacepicker.data.GeoCoderAddressResponse
 import com.vanillaplacepicker.data.common.AddressMapperGoogleMap
 import com.vanillaplacepicker.domain.common.SafeObserver
 import com.vanillaplacepicker.extenstion.*
-import com.vanillaplacepicker.presentation.autocomplete.VanillaAutocompleteActivityVanilla
+import com.vanillaplacepicker.presentation.autocomplete.VanillaAutocompleteActivity
 import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.service.FetchAddressIntentService
 import com.vanillaplacepicker.utils.KeyUtils
@@ -34,8 +34,8 @@ import com.vanillaplacepicker.utils.Logger
 import kotlinx.android.synthetic.main.activity_mi_map.*
 import kotlinx.android.synthetic.main.toolbar.*
 
-class VanillaMapActivityVanilla : VanillaBaseViewModelActivity<VanillaMapViewModelVanilla>(), OnMapReadyCallback, View.OnClickListener {
-    private val TAG = VanillaMapActivityVanilla::class.java.simpleName
+class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), OnMapReadyCallback, View.OnClickListener {
+    private val TAG = VanillaMapActivity::class.java.simpleName
     private var mapFragment: SupportMapFragment? = null
     private var googleMap: GoogleMap? = null
     private lateinit var resultReceiver: AddressResultReceiver
@@ -62,8 +62,8 @@ class VanillaMapActivityVanilla : VanillaBaseViewModelActivity<VanillaMapViewMod
     private var types: String? = null
     private var minCharLimit: Int = 3
 
-    override fun buildViewModel(): VanillaMapViewModelVanilla {
-        return ViewModelProviders.of(this)[VanillaMapViewModelVanilla::class.java]
+    override fun buildViewModel(): VanillaMapViewModel {
+        return ViewModelProviders.of(this)[VanillaMapViewModel::class.java]
     }
 
     override fun getContentResource() = R.layout.activity_mi_map
@@ -188,7 +188,7 @@ class VanillaMapActivityVanilla : VanillaBaseViewModelActivity<VanillaMapViewMod
     }
 
     private fun startVanillaAutocompleteActivity() {
-        val intentPlacePicker = Intent(this, VanillaAutocompleteActivityVanilla::class.java)
+        val intentPlacePicker = Intent(this, VanillaAutocompleteActivity::class.java)
         apiKey.let {
             intentPlacePicker.putExtra(KeyUtils.API_KEY, it)
         }
@@ -267,7 +267,7 @@ class VanillaMapActivityVanilla : VanillaBaseViewModelActivity<VanillaMapViewMod
         try {
             // ...in a raw resource file.
             mapStyleJSONResId?.let {
-                this.googleMap?.setMapStyle(MapStyleOptions.loadRawResourceStyle(this@VanillaMapActivityVanilla, mapStyleJSONResId!!))
+                this.googleMap?.setMapStyle(MapStyleOptions.loadRawResourceStyle(this@VanillaMapActivity, mapStyleJSONResId!!))
             }
             // ...in a string resource file.
             mapStyleString?.let {
@@ -295,14 +295,14 @@ class VanillaMapActivityVanilla : VanillaBaseViewModelActivity<VanillaMapViewMod
             ivDone.hideView()
         }
         this.googleMap?.setOnCameraIdleListener {
-            val newLatLng = this@VanillaMapActivityVanilla.googleMap?.cameraPosition?.target
+            val newLatLng = this@VanillaMapActivity.googleMap?.cameraPosition?.target
             newLatLng?.let {
                 midLatLng?.let { midLatLng ->
                     if (it.latitude == midLatLng.latitude && it.longitude == midLatLng.longitude) {
                         return@setOnCameraIdleListener
                     }
                 }
-                midLatLng = this@VanillaMapActivityVanilla.googleMap?.cameraPosition?.target
+                midLatLng = this@VanillaMapActivity.googleMap?.cameraPosition?.target
                 midLatLng?.let { centerPoint ->
                     startReverseGeoCodingService(centerPoint)
                 }
