@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.vanillaplacepicker.extenstion.hideView
 import com.vanillaplacepicker.extenstion.showView
 
-class RecyclerViewEmptySupport : RecyclerView {
+class VanillaRecyclerViewEmptySupport : RecyclerView {
 
     private var emptyView: View? = null
 
@@ -18,10 +18,10 @@ class RecyclerViewEmptySupport : RecyclerView {
             if (adapter != null && emptyView != null) {
                 if (adapter.itemCount == 0) {
                     emptyView?.showView()
-                    this@RecyclerViewEmptySupport.hideView()
+                    this@VanillaRecyclerViewEmptySupport.hideView()
                 } else {
                     emptyView?.hideView()
-                    this@RecyclerViewEmptySupport.showView()
+                    this@VanillaRecyclerViewEmptySupport.showView()
                 }
             }
         }

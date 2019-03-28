@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
-abstract class BaseViewModel : ViewModel() {
+abstract class VanillaBaseViewModel : ViewModel() {
 
     private val compositeDisposable = CompositeDisposable()
 

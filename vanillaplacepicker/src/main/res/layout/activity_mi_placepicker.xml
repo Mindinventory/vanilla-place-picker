@@ -68,7 +68,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rltvlyotHeader">
 
-        <com.vanillaplacepicker.presentation.autocomplete.RecyclerViewEmptySupport
+        <com.vanillaplacepicker.presentation.autocomplete.VanillaRecyclerViewEmptySupport
             android:id="@+id/rvRetribution"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

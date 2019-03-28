@@ -17,15 +17,15 @@ import com.vanillaplacepicker.domain.common.SafeObserver
 import com.vanillaplacepicker.domain.common.Status
 import com.vanillaplacepicker.extenstion.hideView
 import com.vanillaplacepicker.extenstion.showView
-import com.vanillaplacepicker.presentation.common.BaseViewModelActivity
+import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.Logger
 import kotlinx.android.synthetic.main.activity_mi_placepicker.*
 import kotlinx.android.synthetic.main.lo_recyclremptyvw_appearhere.*
 
-class VanillaAutocompleteActivity : BaseViewModelActivity<VanillaAutocompleteViewModel>(), View.OnClickListener {
+class VanillaAutocompleteActivityVanilla : VanillaBaseViewModelActivity<VanillaAutocompleteViewModelVanilla>(), View.OnClickListener {
 
-    private val TAG = VanillaAutocompleteActivity::class.java.simpleName
+    private val TAG = VanillaAutocompleteActivityVanilla::class.java.simpleName
     private var apiKey = ""
     private var region: String? = null
     private var latitude: Double? = null
@@ -40,7 +40,7 @@ class VanillaAutocompleteActivity : BaseViewModelActivity<VanillaAutocompleteVie
     private var tintColor: Int? = null
     private var minCharLimit: Int = 3
 
-    private val autoCompleteAdapter by lazy { MiAutoCompleteAdapter(this::onItemSelected) }
+    private val autoCompleteAdapter by lazy { VanillaAutoCompleteAdapter(this::onItemSelected) }
 
     override fun getContentResource() = R.layout.activity_mi_placepicker
 
@@ -165,8 +165,8 @@ class VanillaAutocompleteActivity : BaseViewModelActivity<VanillaAutocompleteVie
         }
     }
 
-    override fun buildViewModel(): VanillaAutocompleteViewModel {
-        return ViewModelProviders.of(this)[VanillaAutocompleteViewModel::class.java]
+    override fun buildViewModel(): VanillaAutocompleteViewModelVanilla {
+        return ViewModelProviders.of(this)[VanillaAutocompleteViewModelVanilla::class.java]
     }
 
     override fun initLiveDataObservers() {

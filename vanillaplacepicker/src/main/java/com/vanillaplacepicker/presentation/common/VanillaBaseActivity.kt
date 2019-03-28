@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
-abstract class BaseActivity : AppCompatActivity() {
+abstract class VanillaBaseActivity : AppCompatActivity() {
 
     private val compositeDisposable = CompositeDisposable()
 
