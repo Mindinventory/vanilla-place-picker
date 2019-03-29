@@ -40,7 +40,7 @@ Vanilla Place Picker provides a UI that displays an interactive map to get the p
     ```groovy
         dependencies {
             ...
-            implementation 'com.github.Mindinventory:VanillaPlacePicker:1.0.0'
+            implementation 'com.github.Mindinventory:VanillaPlacePicker:1.0.1'
         }
     ``` 
 
