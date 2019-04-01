@@ -31,6 +31,7 @@ import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.service.FetchAddressIntentService
 import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.Logger
+import com.vanillaplacepicker.utils.SharedPrefs
 import kotlinx.android.synthetic.main.activity_mi_map.*
 import kotlinx.android.synthetic.main.toolbar.*
 
@@ -64,9 +65,10 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private var minCharLimit: Int = 3
     private var isRequestedWithLocation = false
     private var enableSatelliteView = false
+    private val sharedPrefs by lazy { SharedPrefs(this) }
 
     override fun buildViewModel(): VanillaMapViewModel {
-        return ViewModelProviders.of(this)[VanillaMapViewModel::class.java]
+        return ViewModelProviders.of(this, VanillaMapViewModelFactory(sharedPrefs))[VanillaMapViewModel::class.java]
     }
 
     override fun getContentResource() = R.layout.activity_mi_map

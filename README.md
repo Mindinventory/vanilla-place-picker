@@ -40,7 +40,7 @@ Vanilla Place Picker provides a UI that displays an interactive map to get the p
     ```groovy
         dependencies {
             ...
-            implementation 'com.github.Mindinventory:VanillaPlacePicker:1.0.1'
+            implementation 'com.github.Mindinventory:VanillaPlacePicker:0.0.2'
         }
     ``` 
 
@@ -62,12 +62,12 @@ Vanilla Place Picker provides a UI that displays an interactive map to get the p
     Step 2. Add VanillaPlacePicker Builder in to your activity class:
     
     ```kotlin
-            VanillaPlacePicker.Builder(this, KeyUtils.REQUEST_PLACE_PICKER)
-                .withLocation(23.057582, 72.534458)
 
+            val intent = VanillaPlacePicker.Builder(this)
+                .withLocation(23.057582, 72.534458)
                 /*
-                * Configuration for AutoComplete UI
-                * */
+                 * Configuration for AutoComplete UI
+                 */
                 .setRegion("IN")
                 .setLanguage("en")
                 .isOpenNow(true) // Returns only those places that are open for business at the time the query is sent.
@@ -75,15 +75,17 @@ Vanilla Place Picker provides a UI that displays an interactive map to get the p
                 ...
 
                 /*
-                * Configuration for Map UI
-                * */
+                 * Configuration for Map UI
+                 */
                 .enableMap() // Enable to select place from map
                 .setMapStyle(R.raw.style_json) // containing the JSON style declaration for night-mode styling
                 .setMapPinDrawable(android.R.drawable.ic_menu_mylocation) // To give custom pin image for map marker
                 ...
 
                 .build()
-          
+
+            startActivityForResult(intent, REQUEST_PLACE_PICKER)
+
         ...
 
         //----- override onActivityResult function to get Vanilla Place Picker result.

@@ -33,7 +33,7 @@ class VanillaPlacePicker {
         private var zoneLocale: String? = null
         private var zoneRect: SearchZoneRect? = null
         private var zoneDefaultLocale = false
-        private var enableSatelliteView = true
+        private var enableSatelliteView = false
         private var googleTimeZoneEnabled = false
         private var mapStyleJSONResId: Int? = null
         private var mapStyleString: String? = null
