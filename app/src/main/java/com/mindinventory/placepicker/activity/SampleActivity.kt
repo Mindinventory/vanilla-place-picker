@@ -38,21 +38,23 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.cardviewPlacePickerSearch -> {
-                VanillaPlacePicker.Builder(this, KeyUtils.REQUEST_PLACE_PICKER)
-                        .withLocation(27.7089559, 85.2910274)
-                        .zoneLocale("en_US")
-                        .zoneDefaultLocale(true)
-                        .setRegion("IN")
-                        .build()
+                val intent = VanillaPlacePicker.Builder(this)
+                    .withLocation(23.057582, 72.534458)
+                    .zoneLocale("en_US")
+                    .zoneDefaultLocale(true)
+                    .setRegion("IN")
+                    .build()
+                startActivityForResult(intent, KeyUtils.REQUEST_PLACE_PICKER)
             }
 
             R.id.cardviewPlacePickerMap -> {
-                VanillaPlacePicker.Builder(this, KeyUtils.REQUEST_PLACE_PICKER)
-                        .withLocation(23.057582, 72.534458)
-                        .enableMap()
-                        .zoneLocale("en_US")
-                        .zoneDefaultLocale(true)
-                        .build()
+                val intent = VanillaPlacePicker.Builder(this)
+                    .withLocation(23.057582, 72.534458)
+                    .enableMap()
+                    .zoneLocale("en_US")
+                    .zoneDefaultLocale(true)
+                    .build()
+                startActivityForResult(intent, KeyUtils.REQUEST_PLACE_PICKER)
             }
         }
     }

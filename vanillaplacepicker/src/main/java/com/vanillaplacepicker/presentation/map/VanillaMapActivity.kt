@@ -31,10 +31,12 @@ import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.service.FetchAddressIntentService
 import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.Logger
+import com.vanillaplacepicker.utils.SharedPrefs
 import kotlinx.android.synthetic.main.activity_mi_map.*
 import kotlinx.android.synthetic.main.toolbar.*
 
-class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), OnMapReadyCallback, View.OnClickListener {
+class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), OnMapReadyCallback,
+    View.OnClickListener {
     private val TAG = VanillaMapActivity::class.java.simpleName
     private var mapFragment: SupportMapFragment? = null
     private var googleMap: GoogleMap? = null
@@ -46,8 +48,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private val startLocationHandler = Handler()
 
     private var apiKey = ""
-    private var latitude: Double = null ?: 0.0
-    private var longitude: Double = null ?: 0.0
+    private var latitude: Double = 0.0
+    private var longitude: Double = 0.0
     private var mapStyleJSONResId: Int? = null
     private var mapStyleString: String? = null
     private var mapPinDrawable: Int? = null
@@ -61,16 +63,18 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private var pageToken: String? = null
     private var types: String? = null
     private var minCharLimit: Int = 3
+    private var isRequestedWithLocation = false
+    private var enableSatelliteView = false
+    private val sharedPrefs by lazy { SharedPrefs(this) }
 
     override fun buildViewModel(): VanillaMapViewModel {
-        return ViewModelProviders.of(this)[VanillaMapViewModel::class.java]
+        return ViewModelProviders.of(this, VanillaMapViewModelFactory(sharedPrefs))[VanillaMapViewModel::class.java]
     }
 
     override fun getContentResource() = R.layout.activity_mi_map
 
     override fun initViews() {
         super.initViews()
-
         // HIDE ActionBar(if exist in style) of root project module
         supportActionBar?.hide()
         getBundle()
@@ -79,8 +83,10 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         ivBack.setOnClickListener(this)
         ivDone.setOnClickListener(this)
         tvAddress.setOnClickListener(this)
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        findLocation()
+        if (!isRequestedWithLocation) {
+            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+            findLocation()
+        }
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
         resultReceiver = AddressResultReceiver(Handler())
@@ -90,6 +96,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         apiKey = intent.getStringExtra(KeyUtils.API_KEY)
 
         if (hasExtra(KeyUtils.LATITUDE)) {
+            isRequestedWithLocation = true
             latitude = intent.getDoubleExtra(KeyUtils.LATITUDE, 0.0)
         }
 
@@ -144,6 +151,10 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
 
         if (hasExtra(KeyUtils.MIN_CHAR_LIMIT)) {
             minCharLimit = intent.getIntExtra(KeyUtils.MIN_CHAR_LIMIT, 3)
+        }
+
+        if (hasExtra(KeyUtils.ENABLE_SATELLITE_VIEW)) {
+            enableSatelliteView = intent.getBooleanExtra(KeyUtils.ENABLE_SATELLITE_VIEW, false)
         }
     }
 
@@ -229,7 +240,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
      * Receiver for data sent from FetchAddressIntentService.
      */
     private inner class AddressResultReceiver internal constructor(
-            handler: Handler
+        handler: Handler
     ) : ResultReceiver(handler) {
         /**
          * Receives data sent from FetchAddressIntentService and updates the UI.
@@ -263,11 +274,19 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     override fun onMapReady(googleMap: GoogleMap?) {
         this.googleMap = googleMap
         this.googleMap?.clear()
+        if (enableSatelliteView)
+            this.googleMap?.mapType = GoogleMap.MAP_TYPE_SATELLITE
+
         // Customise the styling of the base map using a JSON object defined...
         try {
             // ...in a raw resource file.
             mapStyleJSONResId?.let {
-                this.googleMap?.setMapStyle(MapStyleOptions.loadRawResourceStyle(this@VanillaMapActivity, mapStyleJSONResId!!))
+                this.googleMap?.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                        this@VanillaMapActivity,
+                        mapStyleJSONResId!!
+                    )
+                )
             }
             // ...in a string resource file.
             mapStyleString?.let {
@@ -277,18 +296,18 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             Logger.e(TAG, "Can't find map style or Style parsing failed. Error: $e")
         }
         val cameraUpdateDefaultLocation = CameraUpdateFactory.newLatLngZoom(
-                LatLng(latitude, longitude),
-                if (latitude == 0.0) 0f else KeyUtils.DEFAULT_ZOOM_LEVEL
+            LatLng(latitude, longitude),
+            if (latitude == 0.0) 0f else KeyUtils.DEFAULT_ZOOM_LEVEL
         )
         this.googleMap?.animateCamera(
-                cameraUpdateDefaultLocation,
-                KeyUtils.GOOGLE_MAP_CAMERA_ANIMATE_DURATION,
-                null
+            cameraUpdateDefaultLocation,
+            KeyUtils.GOOGLE_MAP_CAMERA_ANIMATE_DURATION,
+            null
         )
-        /*
-        * Set Padding: Top to show CompassButton at visible position on map
-        * (Before allow Location runtime permission, After that changed position of CompassButton)
-        * */
+        /**
+         * Set Padding: Top to show CompassButton at visible position on map
+         * (Before allow Location runtime permission, After that changed position of CompassButton)
+         * */
         this.googleMap?.setPadding(0, 256, 0, 0)
         this.googleMap?.setOnCameraMoveListener {
             tvAddress.text = getString(R.string.searching)
@@ -329,9 +348,9 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
 
         changeLocationCompassButtonPosition()
         if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
         ) {
             this.googleMap?.isMyLocationEnabled = true
             this.googleMap?.uiSettings?.isMyLocationButtonEnabled = true
@@ -347,8 +366,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private fun changeLocationCompassButtonPosition() {
         try {
             val locationCompassButton =
-                    (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
-                            .findViewById<View>(Integer.parseInt("5"))
+                (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
+                    .findViewById<View>(Integer.parseInt("5"))
             val rlp = locationCompassButton.layoutParams as RelativeLayout.LayoutParams
             rlp.addRule(RelativeLayout.ALIGN_PARENT_START, 0)
             rlp.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE)
@@ -365,8 +384,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     * */
     private fun changeMyLocationButtonPosition() {
         val locationButton =
-                (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
-                        .findViewById<View>(Integer.parseInt("2"))
+            (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
+                .findViewById<View>(Integer.parseInt("2"))
         val rlp = locationButton.layoutParams as RelativeLayout.LayoutParams
         rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0)
         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE)
@@ -423,13 +442,13 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                     }
                     grantResults[0] == PackageManager.PERMISSION_GRANTED -> startLocationUpdates()
                     else -> showAlertDialog(
-                            R.string.missing_permission_message,
-                            R.string.missing_permission_title,
-                            R.string.permission,
-                            R.string.cancel, {
-                        // this mean user has clicked on permission button to update run time permission.
-                        openAppSetting()
-                    }
+                        R.string.missing_permission_message,
+                        R.string.missing_permission_title,
+                        R.string.permission,
+                        R.string.cancel, {
+                            // this mean user has clicked on permission button to update run time permission.
+                            openAppSetting()
+                        }
                     )
                 }
             }
@@ -444,16 +463,16 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // this mean device os is greater or equal to Marshmallow.
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                            this,
-                            Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
             ) {
                 // here we are going to request location run time permission.
                 ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        KeyUtils.REQUEST_PERMISSIONS_REQUEST_CODE
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    KeyUtils.REQUEST_PERMISSIONS_REQUEST_CODE
                 )
                 return
             }
@@ -467,7 +486,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     }
 
     private val locationSettingRequest = LocationSettingsRequest.Builder()
-            .addLocationRequest(locationRequest)
+        .addLocationRequest(locationRequest)
 
     /**
      * this method will check required for location and according to result it will go ahead for fetching location.
@@ -475,39 +494,39 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private fun startLocationUpdates() {
         // Begin by checking if the device has the necessary location settings.
         LocationServices.getSettingsClient(this).checkLocationSettings(locationSettingRequest.build())!!
-                .addOnSuccessListener(this) {
-                    getLocationFromFusedLocation()
-                }.addOnFailureListener(this) { e ->
-                    val statusCode = (e as ApiException).statusCode
-                    when (statusCode) {
-                        LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
-                            Log.i(TAG, resources.getString(R.string.location_settings_are_not_satisfied))
-                            try {
-                                val rae = e as ResolvableApiException
-                                rae.startResolutionForResult(this, KeyUtils.REQUEST_CHECK_SETTINGS)
-                            } catch (sie: IntentSender.SendIntentException) {
-                                Log.i(TAG, getString(R.string.pendingintent_unable_to_execute_request))
-                                viewModel.fetchSavedLocation()
-                                sie.printStackTrace()
-                            }
-                        }
-                        LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
-                            val errorMessage =
-                                    resources.getString(R.string.location_settings_are_inadequate_and_cannot_be_fixed_here)
-                            Logger.e(TAG, errorMessage)
+            .addOnSuccessListener(this) {
+                getLocationFromFusedLocation()
+            }.addOnFailureListener(this) { e ->
+                val statusCode = (e as ApiException).statusCode
+                when (statusCode) {
+                    LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
+                        Log.i(TAG, resources.getString(R.string.location_settings_are_not_satisfied))
+                        try {
+                            val rae = e as ResolvableApiException
+                            rae.startResolutionForResult(this, KeyUtils.REQUEST_CHECK_SETTINGS)
+                        } catch (sie: IntentSender.SendIntentException) {
+                            Log.i(TAG, getString(R.string.pendingintent_unable_to_execute_request))
                             viewModel.fetchSavedLocation()
+                            sie.printStackTrace()
                         }
                     }
+                    LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
+                        val errorMessage =
+                            resources.getString(R.string.location_settings_are_inadequate_and_cannot_be_fixed_here)
+                        Logger.e(TAG, errorMessage)
+                        viewModel.fetchSavedLocation()
+                    }
                 }
+            }
     }
 
     private fun getLocationFromFusedLocation() {
         if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
         ) {
             return
         }

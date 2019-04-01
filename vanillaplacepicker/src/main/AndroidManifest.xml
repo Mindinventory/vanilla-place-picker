@@ -5,9 +5,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <application
-        android:name="com.vanillaplacepicker.presentation.app.VanillaPlacePickerApp"
-        android:supportsRtl="true">
+    <application android:supportsRtl="true">
 
         <activity
             android:name="com.vanillaplacepicker.presentation.autocomplete.VanillaAutocompleteActivity"
