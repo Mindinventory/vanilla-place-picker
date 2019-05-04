@@ -46,16 +46,15 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
 
     override fun initViews() {
         super.initViews()
-
         // HIDE ActionBar(if exist in style) of root project module
         supportActionBar?.hide()
         getBundle()
         setTintColor()
         ivBack.setOnClickListener(this)
         ivClear.setOnClickListener(this)
-        rvRetribution?.setHasFixedSize(true)
-        rvRetribution?.setEmptyView(rvEmptyView)
-        rvRetribution?.adapter = autoCompleteAdapter
+        rvPlaces.setHasFixedSize(true)
+        rvPlaces.setEmptyView(rvEmptyView)
+        rvPlaces.adapter = autoCompleteAdapter
 
         // call this method only once
         val hashMap = HashMap<String, String>()
@@ -99,51 +98,39 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
 
     private fun getBundle() {
         apiKey = intent.getStringExtra(KeyUtils.API_KEY)
-
         if (hasExtra(KeyUtils.REGION)) {
             region = intent.getStringExtra(KeyUtils.REGION)
         }
-
         if (hasExtra(KeyUtils.LATITUDE)) {
             latitude = intent.getDoubleExtra(KeyUtils.LATITUDE, 0.0)
         }
-
         if (hasExtra(KeyUtils.LONGITUDE)) {
             longitude = intent.getDoubleExtra(KeyUtils.LONGITUDE, 0.0)
         }
-
         if (hasExtra(KeyUtils.RADIUS)) {
             radius = intent.getIntExtra(KeyUtils.RADIUS, 0)
         }
-
         if (hasExtra(KeyUtils.LANGUAGE)) {
             language = intent.getStringExtra(KeyUtils.LANGUAGE)
         }
-
         if (hasExtra(KeyUtils.MIN_PRICE)) {
             minPrice = intent.getIntExtra(KeyUtils.MIN_PRICE, 0)
         }
-
         if (hasExtra(KeyUtils.MAX_PRICE)) {
             maxPrice = intent.getIntExtra(KeyUtils.MAX_PRICE, 0)
         }
-
         if (hasExtra(KeyUtils.OPEN_NOW)) {
             openNow = intent.getBooleanExtra(KeyUtils.OPEN_NOW, false)
         }
-
         if (hasExtra(KeyUtils.PAGE_TOKEN)) {
             pageToken = intent.getStringExtra(KeyUtils.PAGE_TOKEN)
         }
-
         if (hasExtra(KeyUtils.TYPES)) {
             types = intent.getStringExtra(KeyUtils.TYPES)
         }
-
         if (hasExtra(KeyUtils.TINT_COLOR)) {
             tintColor = intent.getIntExtra(KeyUtils.TINT_COLOR, 0)
         }
-
         if (hasExtra(KeyUtils.MIN_CHAR_LIMIT)) {
             minCharLimit = intent.getIntExtra(KeyUtils.MIN_CHAR_LIMIT, 3)
         }
@@ -157,8 +144,14 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
     private fun setTintColor() {
         try {
             tintColor?.let { tintColorResId ->
-                ImageViewCompat.setImageTintList(ivBack, ColorStateList.valueOf(ContextCompat.getColor(this, tintColorResId)))
-                ImageViewCompat.setImageTintList(ivClear, ColorStateList.valueOf(ContextCompat.getColor(this, tintColorResId)))
+                ImageViewCompat.setImageTintList(
+                        ivBack,
+                        ColorStateList.valueOf(ContextCompat.getColor(this, tintColorResId))
+                )
+                ImageViewCompat.setImageTintList(
+                        ivClear,
+                        ColorStateList.valueOf(ContextCompat.getColor(this, tintColorResId))
+                )
             }
         } catch (e: Exception) {
             Logger.e(TAG, "Invalid color resource ID. Error: $e")
@@ -199,11 +192,11 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
         progressBar.hideView()
         autoCompleteAdapter.clearList()
         response.item?.let {
-            Toast.makeText(this, it.errorMessage, Toast.LENGTH_LONG).show()
+            Toast.makeText(this, it.errorMessage, Toast.LENGTH_SHORT).show()
         }
 
         response.throwable?.let {
-            Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
         }
 
     }

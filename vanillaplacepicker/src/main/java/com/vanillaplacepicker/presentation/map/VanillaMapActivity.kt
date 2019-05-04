@@ -497,15 +497,14 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             .addOnSuccessListener(this) {
                 getLocationFromFusedLocation()
             }.addOnFailureListener(this) { e ->
-                val statusCode = (e as ApiException).statusCode
-                when (statusCode) {
+                    when ((e as ApiException).statusCode) {
                     LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
-                        Log.i(TAG, resources.getString(R.string.location_settings_are_not_satisfied))
+                        Logger.i(TAG, resources.getString(R.string.location_settings_are_not_satisfied))
                         try {
                             val rae = e as ResolvableApiException
                             rae.startResolutionForResult(this, KeyUtils.REQUEST_CHECK_SETTINGS)
                         } catch (sie: IntentSender.SendIntentException) {
-                            Log.i(TAG, getString(R.string.pendingintent_unable_to_execute_request))
+                            Logger.i(TAG, getString(R.string.pendingintent_unable_to_execute_request))
                             viewModel.fetchSavedLocation()
                             sie.printStackTrace()
                         }

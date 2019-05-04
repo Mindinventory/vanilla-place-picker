@@ -1,0 +1,31 @@
+<resources>
+    <string name="no_location_data_provided">कोई स्थान डेटा प्रदान नहीं किया गया</string>
+    <string name="service_not_available">क्षमा करें, सेवा उपलब्ध नहीं है</string>
+    <string name="invalid_lat_long_used">उपयोगकर्ता सहभागिता रद्द कर दी गई थी।</string>
+    <string name="no_address_found">क्षमा करें, कोई पता नहीं मिला</string>
+    <string name="address_found">पता मिला</string>
+    <string name="no_suggestion_found">कोई सुझाव नहीं मिला।</string>
+    <string name="user_agreed_to_make_required_location_settings_changes">उपयोगकर्ता आवश्यक स्थान सेटिंग्स परिवर्तन करने
+        के लिए सहमत हुए।
+    </string>
+    <string name="user_choose_not_to_make_required_location_settings_changes">उपयोगकर्ता ने आवश्यक स्थान सेटिंग परिवर्तन
+        नहीं करना चुना।
+    </string>
+    <string name="user_interaction_was_cancelled">उपयोगकर्ता सहभागिता रद्द कर दी गई थी।</string>
+    <string name="all_location_settings_are_satisfied">सभी स्थान सेटिंग संतुष्ट हैं।</string>
+    <string name="location_settings_are_inadequate_and_cannot_be_fixed_here">स्थान सेटिंग अपर्याप्त हैं और यहां तय नहीं
+        की जा सकती हैं। सेटिंग्स में ठीक करें।
+    </string>
+    <string name="missing_permission_title">गुम अनुमति</string>
+    <string name="missing_permission_message">कृपया हमें आपकी सेवा के लिए अनुमति दें ताकि आप बेहतर सेवा कर सकें।</string>
+    <string name="ok">ठीक</string>
+    <string name="cancel">रद्द करना</string>
+    <string name="permission">अनुमति</string>
+
+    <!--Map Activity-->
+    <string name="searching">खोज कर…</string>
+
+    <!--Auto Complete Activity-->
+    <string name="enter_address_place">एक पता या जगह दर्ज करें</string>
+    <string name="search_results_appear_here">खोज परिणाम यहां दिखाई देते हैं</string>
+</resources>
