@@ -1,0 +1,31 @@
+<resources>
+    <string name="no_location_data_provided">No se han proporcionado datos de ubicación</string>
+    <string name="service_not_available">Lo sentimos, el servicio no está disponible.</string>
+    <string name="invalid_lat_long_used">La interacción del usuario fue cancelada.</string>
+    <string name="no_address_found">Lo sentimos, no se encontró la dirección</string>
+    <string name="address_found">Dirección encontrada</string>
+    <string name="no_suggestion_found">No se encontró ninguna sugerencia.</string>
+    <string name="user_agreed_to_make_required_location_settings_changes">El usuario acordó realizar los cambios de
+        configuración de ubicación requeridos.
+    </string>
+    <string name="user_choose_not_to_make_required_location_settings_changes">El usuario optó por no realizar los cambios
+        de configuración de ubicación requeridos.
+    </string>
+    <string name="user_interaction_was_cancelled">La interacción del usuario fue cancelada.</string>
+    <string name="all_location_settings_are_satisfied">Todos los ajustes de ubicación están satisfechos.</string>
+    <string name="location_settings_are_inadequate_and_cannot_be_fixed_here">La configuración de la ubicación es
+        inadecuada y no se puede arreglar aquí. Arreglo en Configuraciones.
+    </string>
+    <string name="missing_permission_title">Permiso faltante</string>
+    <string name="missing_permission_message">Permítanos tener acceso a su permiso para servirle mejor.</string>
+    <string name="ok">DE ACUERDO</string>
+    <string name="cancel">Cancelar</string>
+    <string name="permission">Permiso</string>
+
+    <!--Map Activity-->
+    <string name="searching">Buscando…</string>
+
+    <!--Auto Complete Activity-->
+    <string name="enter_address_place">Introduce una dirección o lugar</string>
+    <string name="search_results_appear_here">Los resultados de búsqueda aparecen aquí</string>
+</resources>

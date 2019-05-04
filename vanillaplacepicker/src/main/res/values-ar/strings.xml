@@ -1,0 +1,26 @@
+<resources>
+    <string name="no_location_data_provided">لم يتم تقديم بيانات الموقع</string>
+    <string name="service_not_available">عذرا ، الخدمة غير متوفرة</string>
+    <string name="invalid_lat_long_used">خط العرض أو خط الطول غير صالح</string>
+    <string name="no_address_found">آسف ، لم يتم العثور على عنوان</string>
+    <string name="address_found">تم العثور على العنوان</string>
+    <string name="no_suggestion_found">لم يتم العثور على اقتراحات.</string>
+    <string name="user_agreed_to_make_required_location_settings_changes">وافق المستخدم على إجراء تغييرات إعدادات الموقع المطلوبة.</string>
+    <string name="user_choose_not_to_make_required_location_settings_changes">يختار المستخدم عدم إجراء تغييرات إعدادات الموقع المطلوبة.
+    </string>
+    <string name="user_interaction_was_cancelled">تم إلغاء تفاعل المستخدم.</string>
+    <string name="all_location_settings_are_satisfied">راضون جميع إعدادات الموقع.</string>
+    <string name="location_settings_are_inadequate_and_cannot_be_fixed_here">إعدادات الموقع غير كافية ولا يمكن إصلاحها هنا. إصلاح في الإعدادات.</string>
+    <string name="missing_permission_title">مفقود إذن</string>
+    <string name="missing_permission_message">يرجى السماح لنا بالوصول إلى إذنك لخدمتك بشكل أفضل.</string>
+    <string name="ok">حسنا</string>
+    <string name="cancel">إلغاء</string>
+    <string name="permission">الإذن</string>
+
+    <!--Map Activity-->
+    <string name="searching">الإذن…</string>
+
+    <!--Auto Complete Activity-->
+    <string name="enter_address_place">أدخل عنوان أو مكان</string>
+    <string name="search_results_appear_here">نتائج البحث تظهر هنا</string>
+</resources>
