@@ -102,6 +102,9 @@ Vanilla Place Picker provides a UI that displays an interactive map to get the p
         }
         
     ``` 
+* Requirements
+
+    Androidx(Support lib version on it's way)
 
 # LICENSE!
 
