@@ -15,6 +15,8 @@ Vanilla Place Picker provides a UI that displays an interactive map to get the p
 * Use it without location permission
 * Choose to show only open businesses or all
 * Highly customise attributes
+* Multi languages support.
+* RTL layout support.
 
 # Usage
 
