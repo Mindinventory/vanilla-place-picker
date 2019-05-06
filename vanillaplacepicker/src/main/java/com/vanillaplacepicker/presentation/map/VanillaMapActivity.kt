@@ -36,7 +36,7 @@ import kotlinx.android.synthetic.main.activity_mi_map.*
 import kotlinx.android.synthetic.main.toolbar.*
 
 class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), OnMapReadyCallback,
-    View.OnClickListener {
+        View.OnClickListener {
     private val TAG = VanillaMapActivity::class.java.simpleName
     private var mapFragment: SupportMapFragment? = null
     private var googleMap: GoogleMap? = null
@@ -62,6 +62,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private var openNow: Boolean? = null
     private var pageToken: String? = null
     private var types: String? = null
+    private var tintColor: Int? = null
     private var minCharLimit: Int = 3
     private var isRequestedWithLocation = false
     private var enableSatelliteView = false
@@ -94,65 +95,53 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
 
     private fun getBundle() {
         apiKey = intent.getStringExtra(KeyUtils.API_KEY)
-
         if (hasExtra(KeyUtils.LATITUDE)) {
             isRequestedWithLocation = true
             latitude = intent.getDoubleExtra(KeyUtils.LATITUDE, 0.0)
         }
-
         if (hasExtra(KeyUtils.LONGITUDE)) {
             longitude = intent.getDoubleExtra(KeyUtils.LONGITUDE, 0.0)
         }
-
         if (hasExtra(KeyUtils.MAP_STYLE_JSON_RES_ID)) {
             mapStyleJSONResId = intent.getIntExtra(KeyUtils.MAP_STYLE_JSON_RES_ID, 0)
         }
-
         if (hasExtra(KeyUtils.MAP_STYLE_STRING)) {
             mapStyleString = intent.getStringExtra(KeyUtils.MAP_STYLE_STRING)
         }
-
         if (hasExtra(KeyUtils.MAP_PIN_DRAWABLE)) {
             mapPinDrawable = intent.getIntExtra(KeyUtils.MAP_PIN_DRAWABLE, 0)
         }
-
         // Below Extras are used in PlacePickerActivity
         if (hasExtra(KeyUtils.REGION)) {
             region = intent.getStringExtra(KeyUtils.REGION)
         }
-
         if (hasExtra(KeyUtils.RADIUS)) {
             radius = intent.getIntExtra(KeyUtils.RADIUS, 0)
         }
-
         if (hasExtra(KeyUtils.LANGUAGE)) {
             language = intent.getStringExtra(KeyUtils.LANGUAGE)
         }
-
         if (hasExtra(KeyUtils.MIN_PRICE)) {
             minPrice = intent.getIntExtra(KeyUtils.MIN_PRICE, 0)
         }
-
         if (hasExtra(KeyUtils.MAX_PRICE)) {
             maxPrice = intent.getIntExtra(KeyUtils.MAX_PRICE, 0)
         }
-
         if (hasExtra(KeyUtils.OPEN_NOW)) {
             openNow = intent.getBooleanExtra(KeyUtils.OPEN_NOW, false)
         }
-
         if (hasExtra(KeyUtils.PAGE_TOKEN)) {
             pageToken = intent.getStringExtra(KeyUtils.PAGE_TOKEN)
         }
-
         if (hasExtra(KeyUtils.TYPES)) {
             types = intent.getStringExtra(KeyUtils.TYPES)
         }
-
         if (hasExtra(KeyUtils.MIN_CHAR_LIMIT)) {
             minCharLimit = intent.getIntExtra(KeyUtils.MIN_CHAR_LIMIT, 3)
         }
-
+        if (hasExtra(KeyUtils.TINT_COLOR)) {
+            tintColor = intent.getIntExtra(KeyUtils.TINT_COLOR, 0)
+        }
         if (hasExtra(KeyUtils.ENABLE_SATELLITE_VIEW)) {
             enableSatelliteView = intent.getBooleanExtra(KeyUtils.ENABLE_SATELLITE_VIEW, false)
         }
@@ -230,6 +219,9 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         types?.let {
             intentPlacePicker.putExtra(KeyUtils.TYPES, it)
         }
+        tintColor?.let {
+            intentPlacePicker.putExtra(KeyUtils.TINT_COLOR, it)
+        }
         minCharLimit.let {
             intentPlacePicker.putExtra(KeyUtils.MIN_CHAR_LIMIT, it)
         }
@@ -240,7 +232,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
      * Receiver for data sent from FetchAddressIntentService.
      */
     private inner class AddressResultReceiver internal constructor(
-        handler: Handler
+            handler: Handler
     ) : ResultReceiver(handler) {
         /**
          * Receives data sent from FetchAddressIntentService and updates the UI.
@@ -282,10 +274,10 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             // ...in a raw resource file.
             mapStyleJSONResId?.let {
                 this.googleMap?.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                        this@VanillaMapActivity,
-                        mapStyleJSONResId!!
-                    )
+                        MapStyleOptions.loadRawResourceStyle(
+                                this@VanillaMapActivity,
+                                mapStyleJSONResId!!
+                        )
                 )
             }
             // ...in a string resource file.
@@ -296,13 +288,13 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             Logger.e(TAG, "Can't find map style or Style parsing failed. Error: $e")
         }
         val cameraUpdateDefaultLocation = CameraUpdateFactory.newLatLngZoom(
-            LatLng(latitude, longitude),
-            if (latitude == 0.0) 0f else KeyUtils.DEFAULT_ZOOM_LEVEL
+                LatLng(latitude, longitude),
+                if (latitude == 0.0) 0f else KeyUtils.DEFAULT_ZOOM_LEVEL
         )
         this.googleMap?.animateCamera(
-            cameraUpdateDefaultLocation,
-            KeyUtils.GOOGLE_MAP_CAMERA_ANIMATE_DURATION,
-            null
+                cameraUpdateDefaultLocation,
+                KeyUtils.GOOGLE_MAP_CAMERA_ANIMATE_DURATION,
+                null
         )
         /**
          * Set Padding: Top to show CompassButton at visible position on map
@@ -348,9 +340,9 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
 
         changeLocationCompassButtonPosition()
         if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
         ) {
             this.googleMap?.isMyLocationEnabled = true
             this.googleMap?.uiSettings?.isMyLocationButtonEnabled = true
@@ -366,8 +358,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private fun changeLocationCompassButtonPosition() {
         try {
             val locationCompassButton =
-                (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
-                    .findViewById<View>(Integer.parseInt("5"))
+                    (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
+                            .findViewById<View>(Integer.parseInt("5"))
             val rlp = locationCompassButton.layoutParams as RelativeLayout.LayoutParams
             rlp.addRule(RelativeLayout.ALIGN_PARENT_START, 0)
             rlp.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE)
@@ -384,8 +376,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     * */
     private fun changeMyLocationButtonPosition() {
         val locationButton =
-            (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
-                .findViewById<View>(Integer.parseInt("2"))
+                (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
+                        .findViewById<View>(Integer.parseInt("2"))
         val rlp = locationButton.layoutParams as RelativeLayout.LayoutParams
         rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0)
         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE)
@@ -442,13 +434,13 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                     }
                     grantResults[0] == PackageManager.PERMISSION_GRANTED -> startLocationUpdates()
                     else -> showAlertDialog(
-                        R.string.missing_permission_message,
-                        R.string.missing_permission_title,
-                        R.string.permission,
-                        R.string.cancel, {
-                            // this mean user has clicked on permission button to update run time permission.
-                            openAppSetting()
-                        }
+                            R.string.missing_permission_message,
+                            R.string.missing_permission_title,
+                            R.string.permission,
+                            R.string.cancel, {
+                        // this mean user has clicked on permission button to update run time permission.
+                        openAppSetting()
+                    }
                     )
                 }
             }
@@ -463,16 +455,16 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // this mean device os is greater or equal to Marshmallow.
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
+                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                            this,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
             ) {
                 // here we are going to request location run time permission.
                 ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    KeyUtils.REQUEST_PERMISSIONS_REQUEST_CODE
+                        this,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        KeyUtils.REQUEST_PERMISSIONS_REQUEST_CODE
                 )
                 return
             }
@@ -486,7 +478,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     }
 
     private val locationSettingRequest = LocationSettingsRequest.Builder()
-        .addLocationRequest(locationRequest)
+            .addLocationRequest(locationRequest)
 
     /**
      * this method will check required for location and according to result it will go ahead for fetching location.
@@ -494,39 +486,38 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private fun startLocationUpdates() {
         // Begin by checking if the device has the necessary location settings.
         LocationServices.getSettingsClient(this).checkLocationSettings(locationSettingRequest.build())!!
-            .addOnSuccessListener(this) {
-                getLocationFromFusedLocation()
-            }.addOnFailureListener(this) { e ->
-                val statusCode = (e as ApiException).statusCode
-                when (statusCode) {
-                    LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
-                        Log.i(TAG, resources.getString(R.string.location_settings_are_not_satisfied))
-                        try {
-                            val rae = e as ResolvableApiException
-                            rae.startResolutionForResult(this, KeyUtils.REQUEST_CHECK_SETTINGS)
-                        } catch (sie: IntentSender.SendIntentException) {
-                            Log.i(TAG, getString(R.string.pendingintent_unable_to_execute_request))
+                .addOnSuccessListener(this) {
+                    getLocationFromFusedLocation()
+                }.addOnFailureListener(this) { e ->
+                    when ((e as ApiException).statusCode) {
+                        LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
+                            Logger.i(TAG, resources.getString(R.string.location_settings_are_not_satisfied))
+                            try {
+                                val rae = e as ResolvableApiException
+                                rae.startResolutionForResult(this, KeyUtils.REQUEST_CHECK_SETTINGS)
+                            } catch (sie: IntentSender.SendIntentException) {
+                                Logger.i(TAG, getString(R.string.pendingintent_unable_to_execute_request))
+                                viewModel.fetchSavedLocation()
+                                sie.printStackTrace()
+                            }
+                        }
+                        LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
+                            val errorMessage =
+                                    resources.getString(R.string.location_settings_are_inadequate_and_cannot_be_fixed_here)
+                            Logger.e(TAG, errorMessage)
                             viewModel.fetchSavedLocation()
-                            sie.printStackTrace()
                         }
                     }
-                    LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
-                        val errorMessage =
-                            resources.getString(R.string.location_settings_are_inadequate_and_cannot_be_fixed_here)
-                        Logger.e(TAG, errorMessage)
-                        viewModel.fetchSavedLocation()
-                    }
                 }
-            }
     }
 
     private fun getLocationFromFusedLocation() {
         if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
         ) {
             return
         }

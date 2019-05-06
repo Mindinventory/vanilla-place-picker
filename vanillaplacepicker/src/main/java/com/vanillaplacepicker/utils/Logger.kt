@@ -15,4 +15,10 @@ object Logger {
             Log.e(tag, message.toString())
         }
     }
+
+    fun i(tag: String, message: Any?) {
+        if (BuildConfig.DEBUG) {
+            Log.i(tag, message.toString())
+        }
+    }
 }

@@ -1,0 +1,33 @@
+<resources>
+    <string name="no_location_data_provided">Aucune donnée de localisation fournie</string>
+    <string name="service_not_available">Désolé, le service n\'est pas disponible</string>
+    <string name="invalid_lat_long_used">L\'interaction de l\'utilisateur a été annulée.</string>
+    <string name="no_address_found">Désolé, aucune adresse trouvée</string>
+    <string name="address_found">Adresse trouvée</string>
+    <string name="no_suggestion_found">Aucune suggestion trouvée.</string>
+    <string name="user_agreed_to_make_required_location_settings_changes">L\'utilisateur a accepté de modifier les
+        paramètres d\'emplacement requis.
+    </string>
+    <string name="user_choose_not_to_make_required_location_settings_changes">L\'utilisateur a choisi de ne pas modifier
+        les paramètres d\'emplacement requis.
+    </string>
+    <string name="user_interaction_was_cancelled">L\'interaction de l\'utilisateur a été annulée.</string>
+    <string name="all_location_settings_are_satisfied">Tous les paramètres de localisation sont satisfaits.</string>
+    <string name="location_settings_are_inadequate_and_cannot_be_fixed_here">Les paramètres de localisation sont
+        inadéquats et ne peuvent pas être corrigés ici. Correction dans les paramètres.
+    </string>
+    <string name="missing_permission_title">Permission manquante</string>
+    <string name="missing_permission_message">S\'il vous plaît, permettez-nous d\'accéder à votre permission pour mieux
+        vous servir.
+    </string>
+    <string name="ok">D\'accord</string>
+    <string name="cancel">Annuler</string>
+    <string name="permission">Autorisation</string>
+
+    <!--Map Activity-->
+    <string name="searching">Recherche…</string>
+
+    <!--Auto Complete Activity-->
+    <string name="enter_address_place">Entrez une adresse ou un lieu</string>
+    <string name="search_results_appear_here">Les résultats de recherche apparaissent ici</string>
+</resources>

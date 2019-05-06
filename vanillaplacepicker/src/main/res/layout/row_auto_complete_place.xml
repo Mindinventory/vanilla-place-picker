@@ -2,14 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="?attr/selectableItemBackground"
     android:orientation="vertical"
+    android:layoutDirection="inherit"
     android:padding="16dp">
 
     <TextView
+        android:layout_width="wrap_content"
         android:id="@+id/tvPlaceName"
         android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
+        tools:text="Place name"
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:fontFamily="@font/opensans_reg"
@@ -18,9 +21,10 @@
         android:textSize="16sp" />
 
     <TextView
+        android:layout_width="wrap_content"
         android:id="@+id/tvPlaceAddress"
         android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
+        tools:text="Address"
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:fontFamily="@font/opensans_reg"
