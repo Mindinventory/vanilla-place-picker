@@ -220,7 +220,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             intentPlacePicker.putExtra(KeyUtils.TYPES, it)
         }
         tintColor?.let {
-            intent.putExtra(KeyUtils.TINT_COLOR, it)
+            intentPlacePicker.putExtra(KeyUtils.TINT_COLOR, it)
         }
         minCharLimit.let {
             intentPlacePicker.putExtra(KeyUtils.MIN_CHAR_LIMIT, it)
