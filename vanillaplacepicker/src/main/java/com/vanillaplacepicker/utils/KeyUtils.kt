@@ -13,7 +13,7 @@ object KeyUtils {
     const val REQUEST_CHECK_SETTINGS = 101
     const val REQUEST_PERMISSIONS_REQUEST_CODE = 102
     const val LOCATION_UPDATE_INTERVAL = 3000L
-    const val DEBOUNCE_INTERVAL = 300L
+    const val DEBOUNCE_INTERVAL = 1000L
 
     const val REQUEST_PLACE_PICKER = 100
     const val SELECTED_PLACE = "place"
