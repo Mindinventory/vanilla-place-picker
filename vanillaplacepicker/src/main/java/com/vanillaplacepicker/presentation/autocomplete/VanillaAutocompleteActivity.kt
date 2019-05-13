@@ -152,6 +152,7 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
                         ivClear,
                         ColorStateList.valueOf(ContextCompat.getColor(this, tintColorResId))
                 )
+                etQuery.setTextColor(ContextCompat.getColor(this, tintColorResId))
             }
         } catch (e: Exception) {
             Logger.e(TAG, "Invalid color resource ID. Error: $e")
