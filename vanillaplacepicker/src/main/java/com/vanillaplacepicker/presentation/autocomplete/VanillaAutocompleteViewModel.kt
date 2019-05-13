@@ -49,8 +49,6 @@ class VanillaAutocompleteViewModel : VanillaBaseViewModel() {
     private fun onAutoCompleteResultReceived(result: SearchAddressResponse) {
         if (result.status == KeyUtils.OK || result.status == KeyUtils.ZERO_RESULTS) {
             autoCompleteLiveData.value = Resource(Status.SUCCESS, result)
-        } else if (result.status == KeyUtils.OVER_QUERY_LIMIT) {
-            autoCompleteLiveData.value = Resource(Status.ERROR, result)
         } else {
             autoCompleteLiveData.value = Resource(Status.ERROR, result)
         }
