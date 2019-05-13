@@ -111,9 +111,6 @@ Vanilla Place Picker provides a UI that displays an interactive map to get the p
 * minSdkVersion >= 19
 * Androidx
 
-    
-    
-
 # LICENSE!
 
 Vanilla Place Picker is [MIT-licensed](/LICENSE).
