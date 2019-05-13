@@ -44,7 +44,7 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
                         .zoneLocale("en_US")
                         .zoneDefaultLocale(true)
                         .setTintColor(R.color.colorPrimaryAmber)
-                        .setPickerLanguage(PickerLanguage.ARABIC)
+                        .setPickerLanguage(PickerLanguage.ENGLISH)
                         .build()
                 startActivityForResult(intent, KeyUtils.REQUEST_PLACE_PICKER)
             }

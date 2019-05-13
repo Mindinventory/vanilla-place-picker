@@ -9,10 +9,11 @@ object AddressMapperGoogleMap : BaseMapper<GeoCoderAddressResponse, VanillaAddre
         return VanillaAddress().apply {
             this.formattedAddress = oldItem.addressLine
             this.name = oldItem.featureName
+            this.locality = oldItem.locality
             this.latitude = oldItem.latitude
             this.longitude = oldItem.longitude
             this.postalCode = oldItem.postalCode
-            this.countryCode = oldItem.postalCode
+            this.countryCode = oldItem.countryCode
             this.countryName = oldItem.countryName
         }
     }
