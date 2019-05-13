@@ -15,6 +15,8 @@ Vanilla Place Picker provides a UI that displays an interactive map to get the p
 * Use it without location permission
 * Choose to show only open businesses or all
 * Highly customise attributes
+* Multi languages support.
+* RTL layout support.
 
 # Usage
 
@@ -40,7 +42,7 @@ Vanilla Place Picker provides a UI that displays an interactive map to get the p
     ```groovy
         dependencies {
             ...
-            implementation 'com.github.Mindinventory:VanillaPlacePicker:0.0.2'
+            implementation 'com.github.Mindinventory:VanillaPlacePicker:0.0.4'
         }
     ``` 
 
@@ -65,13 +67,14 @@ Vanilla Place Picker provides a UI that displays an interactive map to get the p
 
             val intent = VanillaPlacePicker.Builder(this)
                 .withLocation(23.057582, 72.534458)
+                .setPickerLanguage(PickerLanguage.HINDI) // Apply language to picker
+                .setTintColor(R.color.colorPrimaryAmber) // Apply Tint color to Back, Clear button of AutoComplete UI
                 /*
                  * Configuration for AutoComplete UI
                  */
                 .setRegion("IN")
                 .setLanguage("en")
                 .isOpenNow(true) // Returns only those places that are open for business at the time the query is sent.
-                .setTintColor(R.color.colorPrimaryAmber) // Apply Tint color to Back, Clear button of AutoComplete UI
                 ...
 
                 /*
@@ -102,6 +105,14 @@ Vanilla Place Picker provides a UI that displays an interactive map to get the p
         }
         
     ``` 
+    
+### Requirements
+
+* minSdkVersion >= 19
+* Androidx
+
+    
+    
 
 # LICENSE!
 
