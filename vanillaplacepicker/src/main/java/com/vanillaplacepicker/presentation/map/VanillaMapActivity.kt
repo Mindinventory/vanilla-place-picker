@@ -9,6 +9,7 @@ import android.os.*
 import android.util.Log
 import android.view.View
 import android.widget.RelativeLayout
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProviders
@@ -32,7 +33,7 @@ import com.vanillaplacepicker.service.FetchAddressIntentService
 import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.Logger
 import com.vanillaplacepicker.utils.SharedPrefs
-import kotlinx.android.synthetic.main.activity_mi_map.*
+import kotlinx.android.synthetic.main.activity_vanilla_map.*
 import kotlinx.android.synthetic.main.toolbar.*
 
 class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), OnMapReadyCallback,
@@ -72,7 +73,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         return ViewModelProviders.of(this, VanillaMapViewModelFactory(sharedPrefs))[VanillaMapViewModel::class.java]
     }
 
-    override fun getContentResource() = R.layout.activity_mi_map
+    override fun getContentResource() = R.layout.activity_vanilla_map
 
     override fun initViews() {
         super.initViews()
@@ -252,6 +253,10 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                         ivDone.hideView()
                     }
                 }
+                KeyUtils.FAILURE_RESULT -> {
+                    val errorMessage = resultData.getString(KeyUtils.RESULT_MESSAGE_KEY)
+                    Toast.makeText(this@VanillaMapActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                }
                 else -> {
                     // make address empty
                 }
@@ -413,10 +418,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             // Check for the integer request code originally supplied to PlacePickerActivityForResult()
             KeyUtils.REQUEST_PLACE_PICKER -> when (resultCode) {
                 Activity.RESULT_OK -> {
-                    selectedPlace ?: return
-                    setResult(Activity.RESULT_OK, Intent().apply {
-                        putExtra(KeyUtils.SELECTED_PLACE, data?.getSerializableExtra(KeyUtils.SELECTED_PLACE))
-                    })
+                    // data contains VanillaAddress object
+                    setResult(Activity.RESULT_OK, data)
                     finish()
                 }
             }

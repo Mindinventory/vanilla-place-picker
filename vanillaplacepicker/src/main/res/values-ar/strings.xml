@@ -23,4 +23,5 @@
     <!--Auto Complete Activity-->
     <string name="enter_address_place">أدخل عنوان أو مكان</string>
     <string name="search_results_appear_here">نتائج البحث تظهر هنا</string>
+    <string name="something_went_worng">حدث خطأ ما. أعد المحاولة من فضلك.</string>
 </resources>

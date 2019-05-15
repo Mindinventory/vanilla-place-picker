@@ -43,7 +43,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
 
-    // this library is used for Retrofit API calling feature
+    // this library are used for Retrofit API calling feature
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.5.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'

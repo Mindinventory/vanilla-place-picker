@@ -14,7 +14,7 @@ class SearchAddressResponse : Serializable {
     var status: String = ""
 
     @SerializedName("error_message")
-    var errorMessage: String = ""
+    var errorMessage: String? = null
 
     inner class Results : Serializable {
         @SerializedName("formatted_address")

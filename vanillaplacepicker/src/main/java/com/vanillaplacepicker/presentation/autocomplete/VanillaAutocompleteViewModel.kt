@@ -14,8 +14,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
-class VanillaAutocompleteViewModel : VanillaBaseViewModel() {
 
+class VanillaAutocompleteViewModel : VanillaBaseViewModel() {
+    val TAG = VanillaAutocompleteViewModel::class.java.simpleName
     val autoCompleteLiveData = MutableLiveData<Resource<SearchAddressResponse>>()
     val showClearButtonLiveData = MutableLiveData<Boolean>()
     private val autoCompletePublishSubject = PublishRelay.create<String>()
@@ -38,16 +39,16 @@ class VanillaAutocompleteViewModel : VanillaBaseViewModel() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ result ->
                     onAutoCompleteResultReceived(result)
-                }, { t: Throwable? ->
-                    t?.let {
-                        autoCompleteLiveData.value = Resource(Status.ERROR, it)
-                    }
-                    Logger.e("Failed to get search results", t)
+                }, {
+                    autoCompleteLiveData.value = Resource(Status.ERROR, it)
+                    Logger.e(TAG, "Failed to get search results $it")
                 }).collect()
     }
 
-    private fun onAutoCompleteResultReceived(result: SearchAddressResponse) {
-        if (result.status == KeyUtils.OK || result.status == KeyUtils.ZERO_RESULTS) {
+    private fun onAutoCompleteResultReceived(
+            result: SearchAddressResponse
+    ) {
+        if (result.status == KeyUtils.OK) {
             autoCompleteLiveData.value = Resource(Status.SUCCESS, result)
         } else {
             autoCompleteLiveData.value = Resource(Status.ERROR, result)

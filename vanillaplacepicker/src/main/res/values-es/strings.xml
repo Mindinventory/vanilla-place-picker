@@ -28,4 +28,5 @@
     <!--Auto Complete Activity-->
     <string name="enter_address_place">Introduce una dirección o lugar</string>
     <string name="search_results_appear_here">Los resultados de búsqueda aparecen aquí</string>
+    <string name="something_went_worng">Algo salió mal. Por favor, vuelva a intentarlo.</string>
 </resources>
