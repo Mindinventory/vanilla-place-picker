@@ -10,6 +10,6 @@ interface WebApi {
     @GET("details/json")
     fun fetchPlaceDetails(@QueryMap param: HashMap<String, String>): Observable<PlaceDetailsResponse>
 
-    @GET("queryautocomplete/json")
+    @GET("autocomplete/json")
     fun searchAutoCompletePredictions(@QueryMap param: HashMap<String, String>): Observable<AutocompletePredictionResponse>
 }

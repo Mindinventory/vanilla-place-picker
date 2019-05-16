@@ -255,14 +255,15 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.ivBack -> onBackPressed()
-            R.id.ivClear -> {
-                etQuery.text = null
-            }
+            R.id.ivClear -> etQuery.setText("")
         }
     }
 
     private fun onItemSelected(selectedPlace: AutocompletePredictionResponse.PredictionsBean) {
-        viewModel.fetchPlaceDetails(selectedPlace.placeId!!, apiKey)
+        if (!selectedPlace.placeId.isNullOrEmpty())
+            viewModel.fetchPlaceDetails(selectedPlace.placeId!!, apiKey)
+        else
+            ToastUtils.showToast(this, R.string.something_went_worng)
     }
 
     private fun disableTouchInteraction() {
