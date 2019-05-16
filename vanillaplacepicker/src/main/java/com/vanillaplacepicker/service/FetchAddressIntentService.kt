@@ -101,8 +101,7 @@ class FetchAddressIntentService : IntentService("FetchAddressIntentService") {
             }
             deliverResultToReceiver(KeyUtils.FAILURE_RESULT, errorMessage, null)
         } else {
-            Logger.e(TAG, "Addresses >> ${Gson().toJson(addresses)}")
-
+            Logger.d(TAG, "Addresses >> ${Gson().toJson(addresses)}")
             val address = addresses[0]
             // Fetch the address lines using {@code getAddressLine},
             // join them, and send them to the thread. The {@link android.location.address}
@@ -136,7 +135,7 @@ class FetchAddressIntentService : IntentService("FetchAddressIntentService") {
                     address.extras
             )
 
-            Log.i(TAG, getString(R.string.address_found))
+            Logger.i(TAG, getString(R.string.address_found))
             deliverResultToReceiver(
                     KeyUtils.SUCCESS_RESULT,
                     getString(R.string.address_found),

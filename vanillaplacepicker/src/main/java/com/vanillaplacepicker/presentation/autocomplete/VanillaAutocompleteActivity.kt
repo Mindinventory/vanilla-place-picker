@@ -3,34 +3,30 @@ package com.vanillaplacepicker.presentation.autocomplete
 import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.os.Bundle
-import android.os.Handler
-import android.os.ResultReceiver
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.lifecycle.ViewModelProviders
-import com.google.android.gms.maps.model.LatLng
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.vanillaplacepicker.R
-import com.vanillaplacepicker.data.GeoCoderAddressResponse
-import com.vanillaplacepicker.data.SearchAddressResponse
-import com.vanillaplacepicker.data.common.AddressMapperGoogleMap
+import com.vanillaplacepicker.data.AutocompletePredictionResponse
+import com.vanillaplacepicker.data.PlaceDetailsResponse
+import com.vanillaplacepicker.data.common.PlaceDetailsMapper
 import com.vanillaplacepicker.domain.common.Resource
 import com.vanillaplacepicker.domain.common.SafeObserver
 import com.vanillaplacepicker.domain.common.Status
 import com.vanillaplacepicker.extenstion.hideView
 import com.vanillaplacepicker.extenstion.showView
 import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
-import com.vanillaplacepicker.service.FetchAddressIntentService
 import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.Logger
+import com.vanillaplacepicker.utils.ToastUtils
 import kotlinx.android.synthetic.main.activity_vanilla_autocomplete.*
 import kotlinx.android.synthetic.main.lo_recyclremptyvw_appearhere.*
 
-class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocompleteViewModel>(), View.OnClickListener {
+class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocompleteViewModel>(),
+        View.OnClickListener {
 
     private val TAG = VanillaAutocompleteActivity::class.java.simpleName
     private var apiKey = ""
@@ -47,7 +43,6 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
     private var tintColor: Int? = null
     private var minCharLimit: Int = 3
     private val autoCompleteAdapter by lazy { VanillaAutoCompleteAdapter(this::onItemSelected) }
-    private val resultReceiver: AddressResultReceiver by lazy { AddressResultReceiver(Handler()) }
 
     override fun getContentResource() = R.layout.activity_vanilla_autocomplete
 
@@ -172,8 +167,12 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
 
     override fun initLiveDataObservers() {
         super.initLiveDataObservers()
-        viewModel.showClearButtonLiveData.observe(this, SafeObserver(this::handleClearButtonVisibility))
+        viewModel.showClearButtonLiveData.observe(
+                this,
+                SafeObserver(this::handleClearButtonVisibility)
+        )
         viewModel.autoCompleteLiveData.observe(this, SafeObserver(this::handleAutoCompleteData))
+        viewModel.vanillaAddressLiveData.observe(this, SafeObserver(this::handleSelectedPlaceDetails))
     }
 
     private fun handleClearButtonVisibility(visible: Boolean) {
@@ -181,36 +180,77 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
         else ivClear.hideView()
     }
 
-    private fun handleAutoCompleteData(response: Resource<SearchAddressResponse>) {
+    private fun handleAutoCompleteData(response: Resource<AutocompletePredictionResponse>) {
         when (response.status) {
             Status.LOADING -> progressBar.showView()
-            Status.SUCCESS -> handleSuccessResponse(response.item)
-            Status.ERROR -> handleErrorResponse(response)
+            Status.SUCCESS -> handleAutocompleteSuccessResponse(response.item)
+            Status.ERROR -> handleAutocompleteErrorResponse(response)
         }
     }
 
-    private fun handleSuccessResponse(result: SearchAddressResponse?) {
+    private fun handleAutocompleteSuccessResponse(result: AutocompletePredictionResponse?) {
         progressBar.hideView()
         result?.let {
-            autoCompleteAdapter.setList(it.results)
+            autoCompleteAdapter.setList(it.predictions)
         }
     }
 
-    private fun handleErrorResponse(response: Resource<SearchAddressResponse>) {
+    private fun handleAutocompleteErrorResponse(response: Resource<AutocompletePredictionResponse>) {
         progressBar.hideView()
         autoCompleteAdapter.clearList()
         response.item?.let {
             if (it.errorMessage != null) {
-                Toast.makeText(this, it.errorMessage, Toast.LENGTH_SHORT).show()
+                ToastUtils.showToast(this, it.errorMessage)
             } else {
-                Toast.makeText(this, R.string.no_address_found, Toast.LENGTH_SHORT).show()
+                ToastUtils.showToast(this, R.string.no_address_found)
             }
         }
 
         response.throwable?.let {
-            Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
+            ToastUtils.showToast(this, it.message)
         }
     }
+
+
+    private fun handleSelectedPlaceDetails(response: Resource<PlaceDetailsResponse>) {
+        when (response.status) {
+            Status.LOADING -> {
+                progressBar.showView()
+                disableTouchInteraction()
+            }
+            Status.ERROR -> handleSelectedPlaceDetailsError(response)
+            Status.SUCCESS -> handleSelectedPlaceSuccess(response.item)
+        }
+    }
+
+    private fun handleSelectedPlaceSuccess(placeDetailsResponse: PlaceDetailsResponse?) {
+        enableTouchInteraction()
+        progressBar.hideView()
+        placeDetailsResponse?.let {
+            val intent = Intent().apply {
+                putExtra(KeyUtils.SELECTED_PLACE, PlaceDetailsMapper.apply(it))
+            }
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
+    }
+
+    private fun handleSelectedPlaceDetailsError(response: Resource<PlaceDetailsResponse>) {
+        progressBar.hideView()
+        enableTouchInteraction()
+        response.item?.let {
+            if (it.errorMessage != null) {
+                ToastUtils.showToast(this, it.errorMessage)
+            } else {
+                ToastUtils.showToast(this, R.string.no_address_found)
+            }
+        }
+
+        response.throwable?.let {
+            ToastUtils.showToast(this, it.message)
+        }
+    }
+
 
     override fun onClick(v: View?) {
         when (v?.id) {
@@ -221,67 +261,11 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
         }
     }
 
-    private fun onItemSelected(selectedPlace: SearchAddressResponse.Results) {
-        if (selectedPlace.geometry?.location?.lat != null && selectedPlace.geometry?.location?.lng != null) {
-            disableTouchInteraction()
-            selectedPlace.geometry?.location?.let {
-                val intent = Intent(this, FetchAddressIntentService::class.java).apply {
-                    // Pass the result receiver as an extra to the service.
-                    putExtra(KeyUtils.RECEIVER, resultReceiver)
-                    // Pass the location data as an extra to the service.
-                    putExtra(
-                            KeyUtils.LOCATION_DATA_EXTRA,
-                            LatLng(selectedPlace.geometry?.location?.lat!!, selectedPlace.geometry?.location?.lng!!)
-                    )
-                }
-                // Start the service. If the service isn't already running, it is instantiated and started
-                // (creating a process for it if needed); if it is running then it remains running. The
-                // service kills itself automatically once all intents are processed.
-                startService(intent)
-            }
-        } else {
-            Toast.makeText(this, R.string.something_went_worng, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    /**
-     * Receiver for data sent from FetchAddressIntentService.
-     */
-    private inner class AddressResultReceiver internal constructor(
-            handler: Handler
-    ) : ResultReceiver(handler) {
-        /**
-         * Receives data sent from FetchAddressIntentService and updates the UI.
-         */
-        override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
-            enableTouchInteraction()
-
-            if (!resultData.containsKey(KeyUtils.RESULT_DATA_KEY)) {
-                return
-            }
-            when (resultCode) {
-                KeyUtils.SUCCESS_RESULT -> {
-                    val intent = Intent().apply {
-                        val geoCoderAddressResponse =
-                                resultData.getSerializable(KeyUtils.RESULT_DATA_KEY) as GeoCoderAddressResponse
-                        putExtra(KeyUtils.SELECTED_PLACE, AddressMapperGoogleMap.apply(geoCoderAddressResponse))
-                    }
-                    setResult(Activity.RESULT_OK, intent)
-                    finish()
-                }
-                KeyUtils.FAILURE_RESULT -> {
-                    val errorMessage = resultData.getString(KeyUtils.RESULT_MESSAGE_KEY)
-                    Toast.makeText(this@VanillaAutocompleteActivity, errorMessage, Toast.LENGTH_SHORT).show()
-                }
-                else -> {
-                    // make address empty
-                }
-            }
-        }
+    private fun onItemSelected(selectedPlace: AutocompletePredictionResponse.PredictionsBean) {
+        viewModel.fetchPlaceDetails(selectedPlace.placeId!!, apiKey)
     }
 
     private fun disableTouchInteraction() {
-        progressBar.showView()
         window.setFlags(
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
@@ -289,7 +273,6 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
     }
 
     private fun enableTouchInteraction() {
-        progressBar.hideView()
         window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 

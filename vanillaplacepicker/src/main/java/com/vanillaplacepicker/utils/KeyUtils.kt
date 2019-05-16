@@ -20,6 +20,7 @@ object KeyUtils {
 
     const val API_KEY = "key"
     const val QUERY = "query"
+    const val INPUT = "input"
     const val REGION = "region"
     const val LATITUDE = "latitude"
     const val LONGITUDE = "longitude"
