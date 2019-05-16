@@ -55,6 +55,7 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
         rvPlaces.setHasFixedSize(true)
         rvPlaces.setEmptyView(rvEmptyView)
         rvPlaces.adapter = autoCompleteAdapter
+        etQuery.requestFocus()
 
         // call this method only once
         val hashMap = HashMap<String, String>()
