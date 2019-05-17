@@ -12,8 +12,8 @@ class VanillaMapViewModel(private val sharedPrefs: SharedPrefs) : VanillaBaseVie
     fun fetchSavedLocation() {
         val latitude = sharedPrefs.deviceLatitude.toDouble()
         val longitude = sharedPrefs.deviceLongitude.toDouble()
-        if (latitude != 0.0 && longitude != 0.0) {
-            latLngLiveData.value = (LatLng(latitude, longitude))
+        if (latitude != 0.0 || longitude != 0.0) {
+            latLngLiveData.value = LatLng(latitude, longitude)
         }
     }
 
