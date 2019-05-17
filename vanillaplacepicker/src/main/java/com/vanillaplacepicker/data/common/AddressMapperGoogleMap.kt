@@ -10,6 +10,7 @@ object AddressMapperGoogleMap : BaseMapper<GeoCoderAddressResponse, VanillaAddre
             this.formattedAddress = oldItem.addressLine
             this.name = oldItem.featureName
             this.locality = oldItem.locality
+            this.subLocality = oldItem.subAdminArea
             this.latitude = oldItem.latitude
             this.longitude = oldItem.longitude
             this.postalCode = oldItem.postalCode
