@@ -344,24 +344,26 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private fun moveCameraToLocation(latLng: LatLng?) {
         latLng ?: return
 
-        val zoomLevel = if (defaultZoomLoaded) {
-            defaultZoomLoaded = false
-            googleMap?.cameraPosition?.zoom ?: KeyUtils.DEFAULT_ZOOM_LEVEL
-        } else {
-            KeyUtils.DEFAULT_ZOOM_LEVEL
-        }
-        val location = CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel)
-        googleMap?.animateCamera(location)
+        if (latLng.latitude != 0.0 && latLng.longitude != 0.0) {
+            val zoomLevel = if (defaultZoomLoaded) {
+                defaultZoomLoaded = false
+                googleMap?.cameraPosition?.zoom ?: KeyUtils.DEFAULT_ZOOM_LEVEL
+            } else {
+                KeyUtils.DEFAULT_ZOOM_LEVEL
+            }
+            val location = CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel)
+            googleMap?.animateCamera(location)
 
-        changeLocationCompassButtonPosition()
-        if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
+            changeLocationCompassButtonPosition()
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            this.googleMap?.isMyLocationEnabled = true
-            this.googleMap?.uiSettings?.isMyLocationButtonEnabled = false
-            changeMyLocationButtonPosition()
+            ) {
+                this.googleMap?.isMyLocationEnabled = true
+                this.googleMap?.uiSettings?.isMyLocationButtonEnabled = false
+                changeMyLocationButtonPosition()
+            }
         }
     }
 
