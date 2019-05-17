@@ -360,6 +360,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                 ) == PackageManager.PERMISSION_GRANTED
         ) {
             this.googleMap?.isMyLocationEnabled = true
+            this.googleMap?.uiSettings?.isMyLocationButtonEnabled = false
             changeMyLocationButtonPosition()
         }
     }
