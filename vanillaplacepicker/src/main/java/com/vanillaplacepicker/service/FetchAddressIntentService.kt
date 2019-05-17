@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.ResultReceiver
 import android.util.Log
 import com.google.android.gms.maps.model.LatLng
+import com.google.gson.Gson
 import com.vanillaplacepicker.R
 import com.vanillaplacepicker.data.GeoCoderAddressResponse
 import com.vanillaplacepicker.utils.KeyUtils
@@ -74,22 +75,22 @@ class FetchAddressIntentService : IntentService("FetchAddressIntentService") {
             // surrounding the given latitude and longitude. The results are a best guess and are
             // not guaranteed to be accurate.
             addresses = geocoder.getFromLocation(
-                latlng.latitude,
-                latlng.longitude,
-                // In this sample, we get just a single address.
-                1
+                    latlng.latitude,
+                    latlng.longitude,
+                    // In this sample, we get just a single address.
+                    1
             )
         } catch (ioException: IOException) {
             // Catch network or other I/O problems.
-            errorMessage = getString(R.string.service_not_available)
-            Logger.e(TAG, errorMessage + ioException.toString())
+            Logger.e(TAG, ioException.toString())
+            deliverResultToReceiver(KeyUtils.FAILURE_RESULT, getString(R.string.service_not_available), null)
         } catch (illegalArgumentException: IllegalArgumentException) {
             // Catch invalid latitude or longitude values.
-            errorMessage = getString(R.string.invalid_lat_long_used)
             Logger.e(
-                TAG, "$errorMessage. Latitude = $latlng.latitude , " +
-                        "Longitude = $latlng.longitude $illegalArgumentException"
+                    TAG, "Latitude = $latlng.latitude , " +
+                    "Longitude = $latlng.longitude $illegalArgumentException"
             )
+            deliverResultToReceiver(KeyUtils.FAILURE_RESULT, getString(R.string.invalid_lat_long_used), null)
         }
 
         // Handle case where no address was found.
@@ -100,6 +101,7 @@ class FetchAddressIntentService : IntentService("FetchAddressIntentService") {
             }
             deliverResultToReceiver(KeyUtils.FAILURE_RESULT, errorMessage, null)
         } else {
+            Logger.d(TAG, "Addresses >> ${Gson().toJson(addresses)}")
             val address = addresses[0]
             // Fetch the address lines using {@code getAddressLine},
             // join them, and send them to the thread. The {@link android.location.address}
@@ -115,29 +117,29 @@ class FetchAddressIntentService : IntentService("FetchAddressIntentService") {
             }
 
             val selectedPlace = GeoCoderAddressResponse(
-                addressFragments.joinToString(separator = "\n"),
-                address.featureName,
-                address.adminArea,
-                address.subAdminArea,
-                address.locality,
-                address.subThoroughfare,
-                address.postalCode,
-                address.countryCode,
-                address.countryName,
-                address.hasLatitude(),
-                address.latitude,
-                address.hasLongitude(),
-                address.longitude,
-                address.phone,
-                address.url,
-                address.extras
+                    addressFragments.joinToString(separator = "\n"),
+                    address.featureName,
+                    address.adminArea,
+                    address.subAdminArea,
+                    address.locality,
+                    address.subThoroughfare,
+                    address.postalCode,
+                    address.countryCode,
+                    address.countryName,
+                    address.hasLatitude(),
+                    address.latitude,
+                    address.hasLongitude(),
+                    address.longitude,
+                    address.phone,
+                    address.url,
+                    address.extras
             )
 
-            Log.i(TAG, getString(R.string.address_found))
+            Logger.i(TAG, getString(R.string.address_found))
             deliverResultToReceiver(
-                KeyUtils.SUCCESS_RESULT,
-                getString(R.string.address_found),
-                selectedPlace
+                    KeyUtils.SUCCESS_RESULT,
+                    getString(R.string.address_found),
+                    selectedPlace
             )
         }
     }

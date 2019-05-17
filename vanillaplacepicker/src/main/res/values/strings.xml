@@ -31,4 +31,5 @@
         location settings
     </string>
     <string name="pendingintent_unable_to_execute_request" translatable="false">PendingIntent unable to execute request.</string>
+    <string name="something_went_worng">Something went wrong, please try again.</string>
 </resources>
