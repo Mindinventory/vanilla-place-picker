@@ -2,9 +2,11 @@ package com.vanillaplacepicker.presentation.map
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.*
 import android.util.Log
 import android.view.View
@@ -32,7 +34,8 @@ import com.vanillaplacepicker.service.FetchAddressIntentService
 import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.Logger
 import com.vanillaplacepicker.utils.SharedPrefs
-import kotlinx.android.synthetic.main.activity_mi_map.*
+import com.vanillaplacepicker.utils.ToastUtils
+import kotlinx.android.synthetic.main.activity_vanilla_map.*
 import kotlinx.android.synthetic.main.toolbar.*
 
 class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), OnMapReadyCallback,
@@ -67,12 +70,16 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private var isRequestedWithLocation = false
     private var enableSatelliteView = false
     private val sharedPrefs by lazy { SharedPrefs(this) }
+    private var fetchLocationForFirstTime = false
 
     override fun buildViewModel(): VanillaMapViewModel {
-        return ViewModelProviders.of(this, VanillaMapViewModelFactory(sharedPrefs))[VanillaMapViewModel::class.java]
+        return ViewModelProviders.of(
+                this,
+                VanillaMapViewModelFactory(sharedPrefs)
+        )[VanillaMapViewModel::class.java]
     }
 
-    override fun getContentResource() = R.layout.activity_mi_map
+    override fun getContentResource() = R.layout.activity_vanilla_map
 
     override fun initViews() {
         super.initViews()
@@ -84,6 +91,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         ivBack.setOnClickListener(this)
         ivDone.setOnClickListener(this)
         tvAddress.setOnClickListener(this)
+        fabLocation.setOnClickListener(this)
         if (!isRequestedWithLocation) {
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
             findLocation()
@@ -179,11 +187,14 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             R.id.ivDone -> {
                 selectedPlace ?: return
                 setResult(Activity.RESULT_OK, Intent().apply {
-                    putExtra(KeyUtils.SELECTED_PLACE, selectedPlace?.let { AddressMapperGoogleMap.apply(it) })
+                    putExtra(
+                            KeyUtils.SELECTED_PLACE,
+                            selectedPlace?.let { AddressMapperGoogleMap.apply(it) })
                 })
                 finish()
             }
             R.id.tvAddress -> startVanillaAutocompleteActivity()
+            R.id.fabLocation -> isGpsEnabled()
         }
     }
 
@@ -251,6 +262,10 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                     } else {
                         ivDone.hideView()
                     }
+                }
+                KeyUtils.FAILURE_RESULT -> {
+                    val errorMessage = resultData.getString(KeyUtils.RESULT_MESSAGE_KEY)
+                    ToastUtils.showToast(this@VanillaMapActivity, errorMessage)
                 }
                 else -> {
                     // make address empty
@@ -345,7 +360,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                 ) == PackageManager.PERMISSION_GRANTED
         ) {
             this.googleMap?.isMyLocationEnabled = true
-            this.googleMap?.uiSettings?.isMyLocationButtonEnabled = true
+            this.googleMap?.uiSettings?.isMyLocationButtonEnabled = false
             changeMyLocationButtonPosition()
         }
     }
@@ -389,17 +404,22 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
      * fetching an address.
      */
     private fun startReverseGeoCodingService(latLng: LatLng) {
-        // Create an intent for passing to the intent service responsible for fetching the address.
-        val intent = Intent(this, FetchAddressIntentService::class.java).apply {
-            // Pass the result receiver as an extra to the service.
-            putExtra(KeyUtils.RECEIVER, resultReceiver)
-            // Pass the location data as an extra to the service.
-            putExtra(KeyUtils.LOCATION_DATA_EXTRA, latLng)
+        val lat = latLng.latitude
+        val lng = latLng.longitude
+
+        if (lat != 0.0 && lng != 0.0) {
+            // Create an intent for passing to the intent service responsible for fetching the address.
+            val intent = Intent(this, FetchAddressIntentService::class.java).apply {
+                // Pass the result receiver as an extra to the service.
+                putExtra(KeyUtils.RECEIVER, resultReceiver)
+                // Pass the location data as an extra to the service.
+                putExtra(KeyUtils.LOCATION_DATA_EXTRA, latLng)
+            }
+            // Start the service. If the service isn't already running, it is instantiated and started
+            // (creating a process for it if needed); if it is running then it remains running. The
+            // service kills itself automatically once all intents are processed.
+            startService(intent)
         }
-        // Start the service. If the service isn't already running, it is instantiated and started
-        // (creating a process for it if needed); if it is running then it remains running. The
-        // service kills itself automatically once all intents are processed.
-        startService(intent)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -413,10 +433,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             // Check for the integer request code originally supplied to PlacePickerActivityForResult()
             KeyUtils.REQUEST_PLACE_PICKER -> when (resultCode) {
                 Activity.RESULT_OK -> {
-                    selectedPlace ?: return
-                    setResult(Activity.RESULT_OK, Intent().apply {
-                        putExtra(KeyUtils.SELECTED_PLACE, data?.getSerializableExtra(KeyUtils.SELECTED_PLACE))
-                    })
+                    // data contains VanillaAddress object
+                    setResult(Activity.RESULT_OK, data)
                     finish()
                 }
             }
@@ -474,7 +492,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
 
     private val locationRequest = LocationRequest().apply {
         this.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        this.numUpdates = 1
+        this.interval = 5000
     }
 
     private val locationSettingRequest = LocationSettingsRequest.Builder()
@@ -523,23 +541,30 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         }
 
         fusedLocationProviderClient?.flushLocations()
-        fusedLocationProviderClient?.requestLocationUpdates(locationRequest, object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
-                super.onLocationResult(locationResult)
-                val location = locationResult!!.lastLocation
-                if (location != null) {
-                    viewModel.saveLatLngToSharedPref(location.latitude, location.longitude)
-                }
-                viewModel.fetchSavedLocation()
-            }
+        fusedLocationProviderClient?.requestLocationUpdates(
+                locationRequest,
+                object : LocationCallback() {
+                    override fun onLocationResult(locationResult: LocationResult?) {
+                        super.onLocationResult(locationResult)
+                        val location = locationResult!!.lastLocation
+                        if (location != null) {
+                            viewModel.saveLatLngToSharedPref(location.latitude, location.longitude)
+                        }
+                        if (!fetchLocationForFirstTime) {
+                            viewModel.fetchSavedLocation()
+                            fetchLocationForFirstTime = true
+                        }
+                    }
 
-            override fun onLocationAvailability(locationAvailability: LocationAvailability?) {
-                super.onLocationAvailability(locationAvailability)
-                if (!locationAvailability!!.isLocationAvailable) {
-                    viewModel.fetchSavedLocation()
-                }
-            }
-        }, Looper.myLooper())
+                    override fun onLocationAvailability(locationAvailability: LocationAvailability?) {
+                        super.onLocationAvailability(locationAvailability)
+                        if (!locationAvailability!!.isLocationAvailable) {
+                            viewModel.fetchSavedLocation()
+                        }
+                    }
+                },
+                Looper.myLooper()
+        )
     }
 
 
@@ -551,5 +576,29 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     override fun onDestroy() {
         super.onDestroy()
         stopLocationUpdates()
+    }
+
+    private fun isGpsEnabled() {
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        var isGpeEnabled = false
+        var isNetworkEnabled = false
+        try {
+            isGpeEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        } catch (e: Exception) {
+            Logger.e(TAG, "isGpsEnabled >> $e")
+        }
+
+        try {
+            isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        } catch (e: Exception) {
+            Logger.e(TAG, "isNetworkEnabled >> $e")
+        }
+
+        if (!isGpeEnabled && !isNetworkEnabled) {
+            //enable gps
+            findLocation()
+        } else {
+            viewModel.fetchSavedLocation()
+        }
     }
 }

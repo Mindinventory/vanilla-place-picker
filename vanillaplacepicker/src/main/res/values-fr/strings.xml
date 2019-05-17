@@ -30,4 +30,5 @@
     <!--Auto Complete Activity-->
     <string name="enter_address_place">Entrez une adresse ou un lieu</string>
     <string name="search_results_appear_here">Les résultats de recherche apparaissent ici</string>
+    <string name="something_went_worng">Une erreur s\'est produite. Veuillez réessayer.</string>
 </resources>
