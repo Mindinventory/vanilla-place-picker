@@ -14,16 +14,17 @@ object KeyUtils {
     const val REQUEST_PERMISSIONS_REQUEST_CODE = 102
     const val LOCATION_UPDATE_INTERVAL = 3000L
     const val DEBOUNCE_INTERVAL = 1000L
+    const val DEFAULT_LOCATION = 0.0
+    const val DEFAULT_MIN_CHAR = 0
+    const val DEFAULT_STYLE_JSON_RESID = 0
+    const val DEFAULT_FETCH_LOCATION_INTERVAL = 5000L
 
     const val REQUEST_PLACE_PICKER = 100
     const val SELECTED_PLACE = "place"
 
     const val API_KEY = "key"
-    const val QUERY = "query"
     const val INPUT = "input"
     const val REGION = "region"
-    const val LATITUDE = "latitude"
-    const val LONGITUDE = "longitude"
     const val LOCATION = "location"
     const val RADIUS = "radius"
     const val LANGUAGE = "language"
@@ -32,19 +33,8 @@ object KeyUtils {
     const val OPEN_NOW = "opennow"
     const val PAGE_TOKEN = "pagetoken"
     const val TYPES = "types"
-    const val TINT_COLOR = "tintColor"
-    const val MIN_CHAR_LIMIT = "minCharLimit"
-    const val ZONE_LOCALE = "zoneLocale"
-    const val ZONE_RECT = "zoneRect"
-    const val ZONE_DEFAULT_LOCALE = "zoneDefaultLocale"
-    const val ENABLE_SATELLITE_VIEW = "enableSatelliteView"
-    const val GOOGLE_TIMEZONE_ENABLED = "googleTimeZoneEnabled"
-    const val MAP_STYLE_JSON_RES_ID = "mapStyleJSONResId"
-    const val MAP_STYLE_STRING = "mapStyleString"
-    const val MAP_PIN_DRAWABLE = "mapPinDrawable"
+    const val EXTRA_CONFIG = "extraConfig"
 
     // status
     const val OK = "OK"
-    const val ZERO_RESULTS = "ZERO_RESULTS"
-    const val OVER_QUERY_LIMIT = "OVER_QUERY_LIMIT"
 }

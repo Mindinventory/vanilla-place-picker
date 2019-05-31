@@ -29,17 +29,15 @@ import com.vanillaplacepicker.data.common.AddressMapperGoogleMap
 import com.vanillaplacepicker.domain.common.SafeObserver
 import com.vanillaplacepicker.extenstion.*
 import com.vanillaplacepicker.presentation.autocomplete.VanillaAutocompleteActivity
+import com.vanillaplacepicker.presentation.builder.VanillaConfig
 import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.service.FetchAddressIntentService
-import com.vanillaplacepicker.utils.KeyUtils
-import com.vanillaplacepicker.utils.Logger
-import com.vanillaplacepicker.utils.SharedPrefs
-import com.vanillaplacepicker.utils.ToastUtils
+import com.vanillaplacepicker.utils.*
 import kotlinx.android.synthetic.main.activity_vanilla_map.*
 import kotlinx.android.synthetic.main.toolbar.*
 
 class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), OnMapReadyCallback,
-        View.OnClickListener {
+    View.OnClickListener {
     private val TAG = VanillaMapActivity::class.java.simpleName
     private var mapFragment: SupportMapFragment? = null
     private var googleMap: GoogleMap? = null
@@ -50,32 +48,16 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private var fusedLocationProviderClient: FusedLocationProviderClient? = null
     private val startLocationHandler = Handler()
 
-    private var apiKey = ""
-    private var latitude: Double = 0.0
-    private var longitude: Double = 0.0
-    private var mapStyleJSONResId: Int? = null
-    private var mapStyleString: String? = null
-    private var mapPinDrawable: Int? = null
+    private lateinit var vanillaConfig: VanillaConfig
     // Belows are used in PlacePickerActivity
-    private var region: String? = null
-    private var radius: Int? = null
-    private var language: String? = null
-    private var minPrice: Int? = null
-    private var maxPrice: Int? = null
-    private var openNow: Boolean? = null
-    private var pageToken: String? = null
-    private var types: String? = null
-    private var tintColor: Int? = null
-    private var minCharLimit: Int = 3
     private var isRequestedWithLocation = false
-    private var enableSatelliteView = false
     private val sharedPrefs by lazy { SharedPrefs(this) }
     private var fetchLocationForFirstTime = false
 
     override fun buildViewModel(): VanillaMapViewModel {
         return ViewModelProviders.of(
-                this,
-                VanillaMapViewModelFactory(sharedPrefs)
+            this,
+            VanillaMapViewModelFactory(sharedPrefs)
         )[VanillaMapViewModel::class.java]
     }
 
@@ -85,12 +67,13 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         super.initViews()
         // HIDE ActionBar(if exist in style) of root project module
         supportActionBar?.hide()
-        getBundle()
         setMapPinDrawable()
         tvAddress.isSelected = true
         ivBack.setOnClickListener(this)
         ivDone.setOnClickListener(this)
-        tvAddress.setOnClickListener(this)
+        if (vanillaConfig.vanillaPickerType == VanillaPickerType.MAP_WITH_AUTO_COMPLETE) {
+            tvAddress.setOnClickListener(this)
+        }
         fabLocation.setOnClickListener(this)
         if (!isRequestedWithLocation) {
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -101,64 +84,19 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         resultReceiver = AddressResultReceiver(Handler())
     }
 
-    private fun getBundle() {
-        apiKey = intent.getStringExtra(KeyUtils.API_KEY)
-        if (hasExtra(KeyUtils.LATITUDE)) {
+    override fun getBundle() {
+        if (hasExtra(KeyUtils.EXTRA_CONFIG)) {
+            vanillaConfig = intent.getParcelableExtra(KeyUtils.EXTRA_CONFIG)
+        }
+        if (vanillaConfig.latitude != KeyUtils.DEFAULT_LOCATION && vanillaConfig.longitude != KeyUtils.DEFAULT_LOCATION) {
             isRequestedWithLocation = true
-            latitude = intent.getDoubleExtra(KeyUtils.LATITUDE, 0.0)
-        }
-        if (hasExtra(KeyUtils.LONGITUDE)) {
-            longitude = intent.getDoubleExtra(KeyUtils.LONGITUDE, 0.0)
-        }
-        if (hasExtra(KeyUtils.MAP_STYLE_JSON_RES_ID)) {
-            mapStyleJSONResId = intent.getIntExtra(KeyUtils.MAP_STYLE_JSON_RES_ID, 0)
-        }
-        if (hasExtra(KeyUtils.MAP_STYLE_STRING)) {
-            mapStyleString = intent.getStringExtra(KeyUtils.MAP_STYLE_STRING)
-        }
-        if (hasExtra(KeyUtils.MAP_PIN_DRAWABLE)) {
-            mapPinDrawable = intent.getIntExtra(KeyUtils.MAP_PIN_DRAWABLE, 0)
-        }
-        // Below Extras are used in PlacePickerActivity
-        if (hasExtra(KeyUtils.REGION)) {
-            region = intent.getStringExtra(KeyUtils.REGION)
-        }
-        if (hasExtra(KeyUtils.RADIUS)) {
-            radius = intent.getIntExtra(KeyUtils.RADIUS, 0)
-        }
-        if (hasExtra(KeyUtils.LANGUAGE)) {
-            language = intent.getStringExtra(KeyUtils.LANGUAGE)
-        }
-        if (hasExtra(KeyUtils.MIN_PRICE)) {
-            minPrice = intent.getIntExtra(KeyUtils.MIN_PRICE, 0)
-        }
-        if (hasExtra(KeyUtils.MAX_PRICE)) {
-            maxPrice = intent.getIntExtra(KeyUtils.MAX_PRICE, 0)
-        }
-        if (hasExtra(KeyUtils.OPEN_NOW)) {
-            openNow = intent.getBooleanExtra(KeyUtils.OPEN_NOW, false)
-        }
-        if (hasExtra(KeyUtils.PAGE_TOKEN)) {
-            pageToken = intent.getStringExtra(KeyUtils.PAGE_TOKEN)
-        }
-        if (hasExtra(KeyUtils.TYPES)) {
-            types = intent.getStringExtra(KeyUtils.TYPES)
-        }
-        if (hasExtra(KeyUtils.MIN_CHAR_LIMIT)) {
-            minCharLimit = intent.getIntExtra(KeyUtils.MIN_CHAR_LIMIT, 3)
-        }
-        if (hasExtra(KeyUtils.TINT_COLOR)) {
-            tintColor = intent.getIntExtra(KeyUtils.TINT_COLOR, 0)
-        }
-        if (hasExtra(KeyUtils.ENABLE_SATELLITE_VIEW)) {
-            enableSatelliteView = intent.getBooleanExtra(KeyUtils.ENABLE_SATELLITE_VIEW, false)
         }
     }
 
     // Set custom image drawable to Map Pin
     private fun setMapPinDrawable() {
         try {
-            mapPinDrawable?.let { pinDrawableResId ->
+            vanillaConfig.mapPinDrawable?.let { pinDrawableResId ->
                 ivMarker.setImageDrawable(ContextCompat.getDrawable(this, pinDrawableResId))
             }
         } catch (e: Exception) {
@@ -188,8 +126,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                 selectedPlace ?: return
                 setResult(Activity.RESULT_OK, Intent().apply {
                     putExtra(
-                            KeyUtils.SELECTED_PLACE,
-                            selectedPlace?.let { AddressMapperGoogleMap.apply(it) })
+                        KeyUtils.SELECTED_PLACE,
+                        selectedPlace?.let { AddressMapperGoogleMap.apply(it) })
                 })
                 finish()
             }
@@ -199,42 +137,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     }
 
     private fun startVanillaAutocompleteActivity() {
-        val intentPlacePicker = Intent(this, VanillaAutocompleteActivity::class.java)
-        apiKey.let {
-            intentPlacePicker.putExtra(KeyUtils.API_KEY, it)
-        }
-        region?.let {
-            intentPlacePicker.putExtra(KeyUtils.REGION, it)
-        }
-        latitude.let {
-            intentPlacePicker.putExtra(KeyUtils.LATITUDE, it)
-        }
-        longitude.let {
-            intentPlacePicker.putExtra(KeyUtils.LONGITUDE, it)
-        }
-        radius?.let {
-            intentPlacePicker.putExtra(KeyUtils.RADIUS, it)
-        }
-        language?.let {
-            intentPlacePicker.putExtra(KeyUtils.LANGUAGE, it)
-        }
-        minPrice?.let {
-            intentPlacePicker.putExtra(KeyUtils.MIN_PRICE, it)
-        }
-        maxPrice?.let {
-            intentPlacePicker.putExtra(KeyUtils.MAX_PRICE, it)
-        }
-        pageToken?.let {
-            intentPlacePicker.putExtra(KeyUtils.PAGE_TOKEN, it)
-        }
-        types?.let {
-            intentPlacePicker.putExtra(KeyUtils.TYPES, it)
-        }
-        tintColor?.let {
-            intentPlacePicker.putExtra(KeyUtils.TINT_COLOR, it)
-        }
-        minCharLimit.let {
-            intentPlacePicker.putExtra(KeyUtils.MIN_CHAR_LIMIT, it)
+        val intentPlacePicker = Intent(this, VanillaAutocompleteActivity::class.java).apply {
+            putExtra(KeyUtils.EXTRA_CONFIG, vanillaConfig)
         }
         startActivityForResult(intentPlacePicker, KeyUtils.REQUEST_PLACE_PICKER)
     }
@@ -243,7 +147,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
      * Receiver for data sent from FetchAddressIntentService.
      */
     private inner class AddressResultReceiver internal constructor(
-            handler: Handler
+        handler: Handler
     ) : ResultReceiver(handler) {
         /**
          * Receives data sent from FetchAddressIntentService and updates the UI.
@@ -281,35 +185,33 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     override fun onMapReady(googleMap: GoogleMap?) {
         this.googleMap = googleMap
         this.googleMap?.clear()
-        if (enableSatelliteView)
+        if (vanillaConfig.enableSatelliteView)
             this.googleMap?.mapType = GoogleMap.MAP_TYPE_SATELLITE
 
         // Customise the styling of the base map using a JSON object defined...
         try {
             // ...in a raw resource file.
-            mapStyleJSONResId?.let {
+            if (vanillaConfig.mapStyleJSONResId != KeyUtils.DEFAULT_STYLE_JSON_RESID) {
                 this.googleMap?.setMapStyle(
-                        MapStyleOptions.loadRawResourceStyle(
-                                this@VanillaMapActivity,
-                                mapStyleJSONResId!!
-                        )
+                    MapStyleOptions.loadRawResourceStyle(
+                        this@VanillaMapActivity,
+                        vanillaConfig.mapStyleJSONResId
+                    )
                 )
             }
             // ...in a string resource file.
-            mapStyleString?.let {
-                this.googleMap?.setMapStyle(MapStyleOptions(mapStyleString))
-            }
+            this.googleMap?.mapType = vanillaConfig.mapType.value
         } catch (e: Exception) {
             Logger.e(TAG, "Can't find map style or Style parsing failed. Error: $e")
         }
         val cameraUpdateDefaultLocation = CameraUpdateFactory.newLatLngZoom(
-                LatLng(latitude, longitude),
-                if (latitude == 0.0) 0f else KeyUtils.DEFAULT_ZOOM_LEVEL
+            LatLng(vanillaConfig.latitude, vanillaConfig.longitude),
+            if (vanillaConfig.latitude == KeyUtils.DEFAULT_LOCATION) 0f else KeyUtils.DEFAULT_ZOOM_LEVEL
         )
         this.googleMap?.animateCamera(
-                cameraUpdateDefaultLocation,
-                KeyUtils.GOOGLE_MAP_CAMERA_ANIMATE_DURATION,
-                null
+            cameraUpdateDefaultLocation,
+            KeyUtils.GOOGLE_MAP_CAMERA_ANIMATE_DURATION,
+            null
         )
         /**
          * Set Padding: Top to show CompassButton at visible position on map
@@ -355,9 +257,9 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
 
         changeLocationCompassButtonPosition()
         if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
         ) {
             this.googleMap?.isMyLocationEnabled = true
             this.googleMap?.uiSettings?.isMyLocationButtonEnabled = false
@@ -373,8 +275,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private fun changeLocationCompassButtonPosition() {
         try {
             val locationCompassButton =
-                    (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
-                            .findViewById<View>(Integer.parseInt("5"))
+                (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
+                    .findViewById<View>(Integer.parseInt("5"))
             val rlp = locationCompassButton.layoutParams as RelativeLayout.LayoutParams
             rlp.addRule(RelativeLayout.ALIGN_PARENT_START, 0)
             rlp.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE)
@@ -391,8 +293,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     * */
     private fun changeMyLocationButtonPosition() {
         val locationButton =
-                (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
-                        .findViewById<View>(Integer.parseInt("2"))
+            (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
+                .findViewById<View>(Integer.parseInt("2"))
         val rlp = locationButton.layoutParams as RelativeLayout.LayoutParams
         rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0)
         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE)
@@ -407,7 +309,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         val lat = latLng.latitude
         val lng = latLng.longitude
 
-        if (lat != 0.0 && lng != 0.0) {
+        if (lat != KeyUtils.DEFAULT_LOCATION && lng != KeyUtils.DEFAULT_LOCATION) {
             // Create an intent for passing to the intent service responsible for fetching the address.
             val intent = Intent(this, FetchAddressIntentService::class.java).apply {
                 // Pass the result receiver as an extra to the service.
@@ -452,13 +354,13 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                     }
                     grantResults[0] == PackageManager.PERMISSION_GRANTED -> startLocationUpdates()
                     else -> showAlertDialog(
-                            R.string.missing_permission_message,
-                            R.string.missing_permission_title,
-                            R.string.permission,
-                            R.string.cancel, {
-                        // this mean user has clicked on permission button to update run time permission.
-                        openAppSetting()
-                    }
+                        R.string.missing_permission_message,
+                        R.string.missing_permission_title,
+                        R.string.permission,
+                        R.string.cancel, {
+                            // this mean user has clicked on permission button to update run time permission.
+                            openAppSetting()
+                        }
                     )
                 }
             }
@@ -473,16 +375,16 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // this mean device os is greater or equal to Marshmallow.
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                            this,
-                            Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
             ) {
                 // here we are going to request location run time permission.
                 ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        KeyUtils.REQUEST_PERMISSIONS_REQUEST_CODE
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    KeyUtils.REQUEST_PERMISSIONS_REQUEST_CODE
                 )
                 return
             }
@@ -492,11 +394,11 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
 
     private val locationRequest = LocationRequest().apply {
         this.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        this.interval = 5000
+        this.interval = KeyUtils.DEFAULT_FETCH_LOCATION_INTERVAL
     }
 
     private val locationSettingRequest = LocationSettingsRequest.Builder()
-            .addLocationRequest(locationRequest)
+        .addLocationRequest(locationRequest)
 
     /**
      * this method will check required for location and according to result it will go ahead for fetching location.
@@ -504,66 +406,66 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private fun startLocationUpdates() {
         // Begin by checking if the device has the necessary location settings.
         LocationServices.getSettingsClient(this).checkLocationSettings(locationSettingRequest.build())!!
-                .addOnSuccessListener(this) {
-                    getLocationFromFusedLocation()
-                }.addOnFailureListener(this) { e ->
-                    when ((e as ApiException).statusCode) {
-                        LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
-                            Logger.i(TAG, resources.getString(R.string.location_settings_are_not_satisfied))
-                            try {
-                                val rae = e as ResolvableApiException
-                                rae.startResolutionForResult(this, KeyUtils.REQUEST_CHECK_SETTINGS)
-                            } catch (sie: IntentSender.SendIntentException) {
-                                Logger.i(TAG, getString(R.string.pendingintent_unable_to_execute_request))
-                                viewModel.fetchSavedLocation()
-                                sie.printStackTrace()
-                            }
-                        }
-                        LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
-                            val errorMessage =
-                                    resources.getString(R.string.location_settings_are_inadequate_and_cannot_be_fixed_here)
-                            Logger.e(TAG, errorMessage)
+            .addOnSuccessListener(this) {
+                getLocationFromFusedLocation()
+            }.addOnFailureListener(this) { e ->
+                when ((e as ApiException).statusCode) {
+                    LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
+                        Logger.i(TAG, resources.getString(R.string.location_settings_are_not_satisfied))
+                        try {
+                            val rae = e as ResolvableApiException
+                            rae.startResolutionForResult(this, KeyUtils.REQUEST_CHECK_SETTINGS)
+                        } catch (sie: IntentSender.SendIntentException) {
+                            Logger.i(TAG, getString(R.string.pendingintent_unable_to_execute_request))
                             viewModel.fetchSavedLocation()
+                            sie.printStackTrace()
                         }
                     }
+                    LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
+                        val errorMessage =
+                            resources.getString(R.string.location_settings_are_inadequate_and_cannot_be_fixed_here)
+                        Logger.e(TAG, errorMessage)
+                        viewModel.fetchSavedLocation()
+                    }
                 }
+            }
     }
 
     private fun getLocationFromFusedLocation() {
         if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
         ) {
             return
         }
 
         fusedLocationProviderClient?.flushLocations()
         fusedLocationProviderClient?.requestLocationUpdates(
-                locationRequest,
-                object : LocationCallback() {
-                    override fun onLocationResult(locationResult: LocationResult?) {
-                        super.onLocationResult(locationResult)
-                        val location = locationResult!!.lastLocation
-                        if (location != null) {
-                            viewModel.saveLatLngToSharedPref(location.latitude, location.longitude)
-                        }
-                        if (!fetchLocationForFirstTime) {
-                            viewModel.fetchSavedLocation()
-                            fetchLocationForFirstTime = true
-                        }
+            locationRequest,
+            object : LocationCallback() {
+                override fun onLocationResult(locationResult: LocationResult?) {
+                    super.onLocationResult(locationResult)
+                    val location = locationResult!!.lastLocation
+                    if (location != null) {
+                        viewModel.saveLatLngToSharedPref(location.latitude, location.longitude)
                     }
+                    if (!fetchLocationForFirstTime) {
+                        viewModel.fetchSavedLocation()
+                        fetchLocationForFirstTime = true
+                    }
+                }
 
-                    override fun onLocationAvailability(locationAvailability: LocationAvailability?) {
-                        super.onLocationAvailability(locationAvailability)
-                        if (!locationAvailability!!.isLocationAvailable) {
-                            viewModel.fetchSavedLocation()
-                        }
+                override fun onLocationAvailability(locationAvailability: LocationAvailability?) {
+                    super.onLocationAvailability(locationAvailability)
+                    if (!locationAvailability!!.isLocationAvailable) {
+                        viewModel.fetchSavedLocation()
                     }
-                },
-                Looper.myLooper()
+                }
+            },
+            Looper.myLooper()
         )
     }
 

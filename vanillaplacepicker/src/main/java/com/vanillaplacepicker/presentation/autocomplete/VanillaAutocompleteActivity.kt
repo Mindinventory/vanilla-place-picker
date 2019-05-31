@@ -18,6 +18,7 @@ import com.vanillaplacepicker.domain.common.SafeObserver
 import com.vanillaplacepicker.domain.common.Status
 import com.vanillaplacepicker.extenstion.hideView
 import com.vanillaplacepicker.extenstion.showView
+import com.vanillaplacepicker.presentation.builder.VanillaConfig
 import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.Logger
@@ -26,23 +27,11 @@ import kotlinx.android.synthetic.main.activity_vanilla_autocomplete.*
 import kotlinx.android.synthetic.main.lo_recyclremptyvw_appearhere.*
 
 class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocompleteViewModel>(),
-        View.OnClickListener {
+    View.OnClickListener {
 
     private val TAG = VanillaAutocompleteActivity::class.java.simpleName
-    private var apiKey = ""
-    private var region: String? = null
-    private var latitude: Double? = null
-    private var longitude: Double? = null
-    private var radius: Int? = null
-    private var language: String? = null
-    private var minPrice: Int? = null
-    private var maxPrice: Int? = null
-    private var openNow: Boolean? = null
-    private var pageToken: String? = null
-    private var types: String? = null
-    private var tintColor: Int? = null
-    private var minCharLimit: Int = 3
     private val autoCompleteAdapter by lazy { VanillaAutoCompleteAdapter(this::onItemSelected) }
+    private lateinit var vanillaConfig: VanillaConfig
 
     override fun getContentResource() = R.layout.activity_vanilla_autocomplete
 
@@ -50,7 +39,6 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
         super.initViews()
         // HIDE ActionBar(if exist in style) of root project module
         supportActionBar?.hide()
-        getBundle()
         setTintColor()
         ivBack.setOnClickListener(this)
         ivClear.setOnClickListener(this)
@@ -59,83 +47,50 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
         rvPlaces.adapter = autoCompleteAdapter
         etQuery.requestFocus()
 
-        // call this method only once
         val hashMap = HashMap<String, String>()
-        hashMap[KeyUtils.API_KEY] = apiKey
-        region?.let {
+        hashMap[KeyUtils.API_KEY] = vanillaConfig.apiKey
+
+        if (vanillaConfig.latitude != KeyUtils.DEFAULT_LOCATION && vanillaConfig.longitude != KeyUtils.DEFAULT_LOCATION) {
+            hashMap[KeyUtils.LOCATION] = "${vanillaConfig.latitude},${vanillaConfig.longitude}"
+        }
+        vanillaConfig.region?.let {
             hashMap.put(KeyUtils.REGION, it)
         }
-        if (latitude != null && longitude != null) {
-            hashMap[KeyUtils.LOCATION] = "$latitude,$longitude"
-        }
-        radius?.let {
+        vanillaConfig.radius?.let {
             hashMap.put(KeyUtils.RADIUS, it.toString())
         }
-        language?.let {
+        vanillaConfig.language?.let {
             hashMap.put(KeyUtils.LANGUAGE, it)
         }
-        minPrice?.let {
-            hashMap[KeyUtils.MIN_PRICE] = minPrice.toString()
+        vanillaConfig.minPrice?.let {
+            hashMap[KeyUtils.MIN_PRICE] = it.toString()
         }
-        maxPrice?.let {
-            hashMap[KeyUtils.MAX_PRICE] = maxPrice.toString()
+        vanillaConfig.maxPrice?.let {
+            hashMap[KeyUtils.MAX_PRICE] = it.toString()
         }
-        openNow?.let {
-            hashMap[KeyUtils.OPEN_NOW] = openNow.toString()
+        vanillaConfig.isOpenNow?.let {
+            hashMap[KeyUtils.OPEN_NOW] = it.toString()
         }
-        pageToken?.let {
-            hashMap[KeyUtils.PAGE_TOKEN] = pageToken.toString()
+        vanillaConfig.pageToken?.let {
+            hashMap[KeyUtils.PAGE_TOKEN] = it
         }
-        types?.let {
+        vanillaConfig.types?.let {
             hashMap.put(KeyUtils.TYPES, it)
         }
 
-        viewModel.configureAutoComplete(hashMap, minCharLimit)
+        // call this method only once
+        viewModel.configureAutoComplete(hashMap, vanillaConfig.minCharLimit)
 
         RxTextView.afterTextChangeEvents(etQuery)
-                .skipInitialValue()
-                .subscribe {
-                    viewModel.onInputStateChanged(it.editable()?.trim().toString(), minCharLimit)
-                }.collect()
+            .skipInitialValue()
+            .subscribe {
+                viewModel.onInputStateChanged(it.editable()?.trim().toString(), vanillaConfig.minCharLimit)
+            }.collect()
     }
 
-    private fun getBundle() {
-        apiKey = intent.getStringExtra(KeyUtils.API_KEY)
-        if (hasExtra(KeyUtils.REGION)) {
-            region = intent.getStringExtra(KeyUtils.REGION)
-        }
-        if (hasExtra(KeyUtils.LATITUDE)) {
-            latitude = intent.getDoubleExtra(KeyUtils.LATITUDE, 0.0)
-        }
-        if (hasExtra(KeyUtils.LONGITUDE)) {
-            longitude = intent.getDoubleExtra(KeyUtils.LONGITUDE, 0.0)
-        }
-        if (hasExtra(KeyUtils.RADIUS)) {
-            radius = intent.getIntExtra(KeyUtils.RADIUS, 0)
-        }
-        if (hasExtra(KeyUtils.LANGUAGE)) {
-            language = intent.getStringExtra(KeyUtils.LANGUAGE)
-        }
-        if (hasExtra(KeyUtils.MIN_PRICE)) {
-            minPrice = intent.getIntExtra(KeyUtils.MIN_PRICE, 0)
-        }
-        if (hasExtra(KeyUtils.MAX_PRICE)) {
-            maxPrice = intent.getIntExtra(KeyUtils.MAX_PRICE, 0)
-        }
-        if (hasExtra(KeyUtils.OPEN_NOW)) {
-            openNow = intent.getBooleanExtra(KeyUtils.OPEN_NOW, false)
-        }
-        if (hasExtra(KeyUtils.PAGE_TOKEN)) {
-            pageToken = intent.getStringExtra(KeyUtils.PAGE_TOKEN)
-        }
-        if (hasExtra(KeyUtils.TYPES)) {
-            types = intent.getStringExtra(KeyUtils.TYPES)
-        }
-        if (hasExtra(KeyUtils.TINT_COLOR)) {
-            tintColor = intent.getIntExtra(KeyUtils.TINT_COLOR, 0)
-        }
-        if (hasExtra(KeyUtils.MIN_CHAR_LIMIT)) {
-            minCharLimit = intent.getIntExtra(KeyUtils.MIN_CHAR_LIMIT, 3)
+    override fun getBundle() {
+        if (hasExtra(KeyUtils.EXTRA_CONFIG)) {
+            vanillaConfig = intent.getParcelableExtra(KeyUtils.EXTRA_CONFIG)
         }
     }
 
@@ -146,14 +101,14 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
     // Apply Tint color to Back, Clear button
     private fun setTintColor() {
         try {
-            tintColor?.let { tintColorResId ->
+            vanillaConfig.tintColor?.let { tintColorResId ->
                 ImageViewCompat.setImageTintList(
-                        ivBack,
-                        ColorStateList.valueOf(ContextCompat.getColor(this, tintColorResId))
+                    ivBack,
+                    ColorStateList.valueOf(ContextCompat.getColor(this, tintColorResId))
                 )
                 ImageViewCompat.setImageTintList(
-                        ivClear,
-                        ColorStateList.valueOf(ContextCompat.getColor(this, tintColorResId))
+                    ivClear,
+                    ColorStateList.valueOf(ContextCompat.getColor(this, tintColorResId))
                 )
                 etQuery.setTextColor(ContextCompat.getColor(this, tintColorResId))
             }
@@ -262,7 +217,7 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
 
     private fun onItemSelected(selectedPlace: AutocompletePredictionResponse.PredictionsBean) {
         if (!selectedPlace.placeId.isNullOrEmpty())
-            viewModel.fetchPlaceDetails(selectedPlace.placeId!!, apiKey)
+            viewModel.fetchPlaceDetails(selectedPlace.placeId!!, vanillaConfig.apiKey)
         else
             ToastUtils.showToast(this, R.string.something_went_worng)
     }
