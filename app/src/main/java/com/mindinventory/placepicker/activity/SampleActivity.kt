@@ -10,9 +10,9 @@ import com.vanillaplacepicker.data.VanillaAddress
 import com.vanillaplacepicker.extenstion.showView
 import com.vanillaplacepicker.presentation.builder.VanillaPlacePicker
 import com.vanillaplacepicker.utils.KeyUtils
+import com.vanillaplacepicker.utils.MapType
 import com.vanillaplacepicker.utils.PickerLanguage
-import com.vanillaplacepicker.utils.VanillaMapType
-import com.vanillaplacepicker.utils.VanillaPickerType
+import com.vanillaplacepicker.utils.PickerType
 import kotlinx.android.synthetic.main.activity_main.*
 
 class SampleActivity : AppCompatActivity(), View.OnClickListener {
@@ -42,7 +42,7 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
         when (v?.id) {
             R.id.cardviewPlacePickerSearch -> {
                 val intent = VanillaPlacePicker.Builder(this)
-                    .with(VanillaPickerType.AUTO_COMPLETE)
+                    .with(PickerType.AUTO_COMPLETE)
                     .withLocation(23.057582, 72.534458)
                     .zoneLocale("en_US")
                     .zoneDefaultLocale(true)
@@ -55,9 +55,9 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
             R.id.cardviewPlacePickerMap -> {
                 val intent = VanillaPlacePicker.Builder(this)
                     .withLocation(23.057582, 72.534458)
-                    .with(VanillaPickerType.MAP_WITH_AUTO_COMPLETE)
+                    .with(PickerType.MAP_WITH_AUTO_COMPLETE)
                     .zoneLocale("en_US")
-                    .setMapType(VanillaMapType.MAP_TYPE_SATELLITE)
+                    .setMapType(MapType.SATELLITE)
                     .zoneDefaultLocale(true)
                     .setPickerLanguage(PickerLanguage.ENGLISH)
                     .build()

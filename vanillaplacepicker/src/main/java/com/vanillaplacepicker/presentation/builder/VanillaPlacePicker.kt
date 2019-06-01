@@ -23,8 +23,8 @@ class VanillaPlacePicker {
         /**
          * To enable map view with place picker
          */
-        fun with(vanillaPickerType: VanillaPickerType): Builder {
-            vanillaConfig.vanillaPickerType = vanillaPickerType
+        fun with(pickerType: PickerType): Builder {
+            vanillaConfig.pickerType = pickerType
             return this
         }
 
@@ -160,7 +160,7 @@ class VanillaPlacePicker {
          * changing the visual display of features like roads, parks, businesses, and other points of interest.
          * Add a resource containing a JSON style object (Use a string resource)
          * */
-        fun setMapType(mapType: VanillaMapType): Builder {
+        fun setMapType(mapType: MapType): Builder {
             vanillaConfig.mapType = mapType
             return this
         }
@@ -207,7 +207,7 @@ class VanillaPlacePicker {
         }
 
         fun build(): Intent {
-            val intent = if (vanillaConfig.vanillaPickerType == VanillaPickerType.AUTO_COMPLETE) {
+            val intent = if (vanillaConfig.pickerType == PickerType.AUTO_COMPLETE) {
                 Intent(context, VanillaAutocompleteActivity::class.java)
             } else {
                 Intent(context, VanillaMapActivity::class.java)

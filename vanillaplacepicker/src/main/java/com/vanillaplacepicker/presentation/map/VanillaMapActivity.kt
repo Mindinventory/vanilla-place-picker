@@ -71,7 +71,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         tvAddress.isSelected = true
         ivBack.setOnClickListener(this)
         ivDone.setOnClickListener(this)
-        if (vanillaConfig.vanillaPickerType == VanillaPickerType.MAP_WITH_AUTO_COMPLETE) {
+        if (vanillaConfig.pickerType == PickerType.MAP_WITH_AUTO_COMPLETE) {
             tvAddress.setOnClickListener(this)
         }
         fabLocation.setOnClickListener(this)

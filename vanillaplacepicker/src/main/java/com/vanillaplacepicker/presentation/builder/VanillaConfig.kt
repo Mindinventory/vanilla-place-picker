@@ -2,14 +2,14 @@ package com.vanillaplacepicker.presentation.builder
 
 import android.os.Parcelable
 import com.vanillaplacepicker.utils.KeyUtils
-import com.vanillaplacepicker.utils.VanillaMapType
-import com.vanillaplacepicker.utils.VanillaPickerType
+import com.vanillaplacepicker.utils.MapType
+import com.vanillaplacepicker.utils.PickerType
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class VanillaConfig(
     var apiKey: String = "",
-    var vanillaPickerType: VanillaPickerType = VanillaPickerType.MAP_WITH_AUTO_COMPLETE,
+    var pickerType: PickerType = PickerType.MAP_WITH_AUTO_COMPLETE,
     var region: String? = null,
     var latitude: Double = KeyUtils.DEFAULT_LOCATION,
     var longitude: Double = KeyUtils.DEFAULT_LOCATION,
@@ -28,6 +28,6 @@ data class VanillaConfig(
     var enableSatelliteView: Boolean = false,
     var googleTimeZoneEnabled: Boolean = false,
     var mapStyleJSONResId: Int = KeyUtils.DEFAULT_STYLE_JSON_RESID,
-    var mapType: VanillaMapType = VanillaMapType.MAP_TYPE_NORMAL,
+    var mapType: MapType = MapType.NORMAL,
     var mapPinDrawable: Int? = null
 ) : Parcelable
