@@ -12,9 +12,13 @@ abstract class VanillaBaseActivity : AppCompatActivity() {
 
     protected abstract fun getContentResource(): Int
 
+    protected open fun getBundle() {
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(getContentResource())
+        getBundle()
         initViews()
     }
 
