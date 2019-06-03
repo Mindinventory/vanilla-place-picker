@@ -80,7 +80,8 @@ Vanilla Place Picker provides a UI that displays an interactive map to get the p
                 /*
                  * Configuration for Map UI
                  */
-                .enableMap() // Enable to select place from map
+                .with(PickerType.MAP_WITH_AUTO_COMPLETE) // Select Picker type to enable autocompelte, map or both
+                .setMapType(MapType.SATELLITE) // Choose map type (Only applicable for map screen) 
                 .setMapStyle(R.raw.style_json) // containing the JSON style declaration for night-mode styling
                 .setMapPinDrawable(android.R.drawable.ic_menu_mylocation) // To give custom pin image for map marker
                 ...
