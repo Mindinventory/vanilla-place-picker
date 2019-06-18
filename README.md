@@ -3,6 +3,8 @@
 
 Vanilla Place Picker provides a UI that displays an interactive map to get the place details and Autocomplete functionality, which displays place predictions based on user search input.
 
+Developers often come across a requirement of adding precise location. So, a place picker which is easy to implement, less time consuming, and simple enough for users to use it is always in demand and here we have a Vanilla Place Picker which developer can add it in quick simple steps.
+
 ### Preview
 ![image](/media/vanillaplacepicker-autocomplete.gif) ![image](/media/vanillaplacepicker-map.gif)
 
