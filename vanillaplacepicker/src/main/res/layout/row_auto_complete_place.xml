@@ -17,7 +17,7 @@
         android:ellipsize="end"
         android:fontFamily="@font/opensans_reg"
         android:maxLines="1"
-        android:textColor="@android:color/black"
+        android:textAppearance="?textAppearanceListItem"
         android:textSize="16sp" />
 
     <TextView
@@ -29,5 +29,6 @@
         android:ellipsize="end"
         android:fontFamily="@font/opensans_reg"
         android:maxLines="1"
+        android:textAppearance="?textAppearanceListItemSecondary"
         android:textSize="14sp" />
 </LinearLayout>

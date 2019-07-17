@@ -71,7 +71,7 @@
             android:id="@+id/rvPlaces"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/white"
+            android:background="?colorBackgroundFloating"
             android:orientation="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/row_auto_complete_place" />
