@@ -52,6 +52,7 @@
             android:paddingBottom="8dp"
             android:scrollHorizontally="true"
             android:singleLine="true"
+            android:textAppearance="?android:textColorPrimary"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
