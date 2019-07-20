@@ -20,6 +20,7 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivBack"
             android:layout_width="48dp"
+            android:rotation="@integer/mirror_degree"
             android:layout_height="48dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"

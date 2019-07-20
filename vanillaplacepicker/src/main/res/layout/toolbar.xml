@@ -23,6 +23,7 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackground"
             android:padding="12dp"
+            android:rotation="@integer/mirror_degree"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
