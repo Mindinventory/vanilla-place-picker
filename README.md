@@ -68,6 +68,7 @@ Developers often come across a requirement of adding precise location. So, a pla
     ```kotlin
 
             val intent = VanillaPlacePicker.Builder(this)
+                .with(PickerType.MAP_WITH_AUTO_COMPLETE) // Select Picker type to enable autocompelte, map or both
                 .withLocation(23.057582, 72.534458)
                 .setPickerLanguage(PickerLanguage.HINDI) // Apply language to picker
                 .setTintColor(R.color.colorPrimaryAmber) // Apply Tint color to Back, Clear button of AutoComplete UI
@@ -83,7 +84,6 @@ Developers often come across a requirement of adding precise location. So, a pla
                 /*
                  * Configuration for Map UI
                  */
-                .with(PickerType.MAP_WITH_AUTO_COMPLETE) // Select Picker type to enable autocompelte, map or both
                 .setMapType(MapType.SATELLITE) // Choose map type (Only applicable for map screen) 
                 .setMapStyle(R.raw.style_json) // containing the JSON style declaration for night-mode styling
                 .setMapPinDrawable(android.R.drawable.ic_menu_mylocation) // To give custom pin image for map marker
