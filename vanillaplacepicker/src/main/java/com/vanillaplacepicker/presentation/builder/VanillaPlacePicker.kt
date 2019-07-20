@@ -177,8 +177,15 @@ class VanillaPlacePicker {
          * Set picker language
          */
         fun setPickerLanguage(pickerLanguage: PickerLanguage): Builder {
-//            LocaleHelper.setLocale(context, pickerLanguage.value)
             ContextWrapper(context).wrap(pickerLanguage.value)
+            return this
+        }
+
+        /**
+         * Set custom Place holder for autcomplete view
+         * */
+        fun setAutoCompletePlaceHolder(placeholderDrawableResId: Int): Builder {
+            vanillaConfig.autoCompletePlaceHolder = placeholderDrawableResId
             return this
         }
 

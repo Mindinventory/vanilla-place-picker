@@ -15,7 +15,7 @@ object KeyUtils {
     const val LOCATION_UPDATE_INTERVAL = 3000L
     const val DEBOUNCE_INTERVAL = 1000L
     const val DEFAULT_LOCATION = 0.0
-    const val DEFAULT_MIN_CHAR = 0
+    const val DEFAULT_MIN_CHAR = 3
     const val DEFAULT_STYLE_JSON_RESID = 0
     const val DEFAULT_FETCH_LOCATION_INTERVAL = 5000L
 

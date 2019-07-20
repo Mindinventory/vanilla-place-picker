@@ -1,6 +1,8 @@
 package com.vanillaplacepicker.presentation.builder
 
 import android.os.Parcelable
+import androidx.annotation.DrawableRes
+import com.vanillaplacepicker.R
 import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.MapType
 import com.vanillaplacepicker.utils.PickerType
@@ -29,5 +31,6 @@ data class VanillaConfig(
     var googleTimeZoneEnabled: Boolean = false,
     var mapStyleJSONResId: Int = KeyUtils.DEFAULT_STYLE_JSON_RESID,
     var mapType: MapType = MapType.NORMAL,
-    var mapPinDrawable: Int? = null
+    @DrawableRes var mapPinDrawable: Int? = null,
+    @DrawableRes var autoCompletePlaceHolder: Int = R.drawable.ic_undraw_search
 ) : Parcelable

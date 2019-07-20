@@ -46,46 +46,49 @@ class VanillaAutocompleteActivity : VanillaBaseViewModelActivity<VanillaAutocomp
         rvPlaces.setEmptyView(rvEmptyView)
         rvPlaces.adapter = autoCompleteAdapter
         etQuery.requestFocus()
+        ivPlaceHolder.setImageDrawable(ContextCompat.getDrawable(this, vanillaConfig.autoCompletePlaceHolder))
 
-        val hashMap = HashMap<String, String>()
-        hashMap[KeyUtils.API_KEY] = vanillaConfig.apiKey
+        with(vanillaConfig) {
+            val hashMap = HashMap<String, String>()
+            hashMap[KeyUtils.API_KEY] = apiKey
 
-        if (vanillaConfig.latitude != KeyUtils.DEFAULT_LOCATION && vanillaConfig.longitude != KeyUtils.DEFAULT_LOCATION) {
-            hashMap[KeyUtils.LOCATION] = "${vanillaConfig.latitude},${vanillaConfig.longitude}"
-        }
-        vanillaConfig.region?.let {
-            hashMap.put(KeyUtils.REGION, it)
-        }
-        vanillaConfig.radius?.let {
-            hashMap.put(KeyUtils.RADIUS, it.toString())
-        }
-        vanillaConfig.language?.let {
-            hashMap.put(KeyUtils.LANGUAGE, it)
-        }
-        vanillaConfig.minPrice?.let {
-            hashMap[KeyUtils.MIN_PRICE] = it.toString()
-        }
-        vanillaConfig.maxPrice?.let {
-            hashMap[KeyUtils.MAX_PRICE] = it.toString()
-        }
-        vanillaConfig.isOpenNow?.let {
-            hashMap[KeyUtils.OPEN_NOW] = it.toString()
-        }
-        vanillaConfig.pageToken?.let {
-            hashMap[KeyUtils.PAGE_TOKEN] = it
-        }
-        vanillaConfig.types?.let {
-            hashMap.put(KeyUtils.TYPES, it)
-        }
+            if (latitude != KeyUtils.DEFAULT_LOCATION && longitude != KeyUtils.DEFAULT_LOCATION) {
+                hashMap[KeyUtils.LOCATION] = "$latitude,$longitude"
+            }
+            region?.let {
+                hashMap.put(KeyUtils.REGION, it)
+            }
+            radius?.let {
+                hashMap.put(KeyUtils.RADIUS, it.toString())
+            }
+            language?.let {
+                hashMap.put(KeyUtils.LANGUAGE, it)
+            }
+            minPrice?.let {
+                hashMap[KeyUtils.MIN_PRICE] = it.toString()
+            }
+            maxPrice?.let {
+                hashMap[KeyUtils.MAX_PRICE] = it.toString()
+            }
+            isOpenNow?.let {
+                hashMap[KeyUtils.OPEN_NOW] = it.toString()
+            }
+            pageToken?.let {
+                hashMap[KeyUtils.PAGE_TOKEN] = it
+            }
+            types?.let {
+                hashMap.put(KeyUtils.TYPES, it)
+            }
 
-        // call this method only once
-        viewModel.configureAutoComplete(hashMap, vanillaConfig.minCharLimit)
+            // call this method only once
+            viewModel.configureAutoComplete(hashMap, minCharLimit)
 
-        RxTextView.afterTextChangeEvents(etQuery)
-            .skipInitialValue()
-            .subscribe {
-                viewModel.onInputStateChanged(it.editable()?.trim().toString(), vanillaConfig.minCharLimit)
-            }.collect()
+            RxTextView.afterTextChangeEvents(etQuery)
+                .skipInitialValue()
+                .subscribe {
+                    viewModel.onInputStateChanged(it.editable()?.trim().toString(), minCharLimit)
+                }.collect()
+        }
     }
 
     override fun getBundle() {

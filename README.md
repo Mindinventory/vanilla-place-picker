@@ -44,7 +44,7 @@ Developers often come across a requirement of adding precise location. So, a pla
     ```groovy
         dependencies {
             ...
-            implementation 'com.github.Mindinventory:VanillaPlacePicker:0.0.7'
+            implementation 'com.github.Mindinventory:VanillaPlacePicker:0.0.8'
         }
     ``` 
 
@@ -77,6 +77,7 @@ Developers often come across a requirement of adding precise location. So, a pla
                 .setRegion("IN")
                 .setLanguage("en")
                 .isOpenNow(true) // Returns only those places that are open for business at the time the query is sent.
+                .setAutoCompletePlaceHolder(R.drawable.ic_undraw_search) // To add custom place holder in autocomplete screen
                 ...
 
                 /*

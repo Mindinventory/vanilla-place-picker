@@ -48,6 +48,7 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
                     .zoneDefaultLocale(true)
                     .setTintColor(R.color.colorPrimaryAmber)
                     .setPickerLanguage(PickerLanguage.ENGLISH)
+                    .setAutoCompletePlaceHolder(R.drawable.ic_undraw_search)
                     .build()
                 startActivityForResult(intent, KeyUtils.REQUEST_PLACE_PICKER)
             }
