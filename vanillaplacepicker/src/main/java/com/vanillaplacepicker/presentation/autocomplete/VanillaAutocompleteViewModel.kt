@@ -16,7 +16,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
-
 class VanillaAutocompleteViewModel : VanillaBaseViewModel() {
     val TAG = VanillaAutocompleteViewModel::class.java.simpleName
     val autoCompleteLiveData = MutableLiveData<Resource<AutocompletePredictionResponse>>()
@@ -31,26 +30,24 @@ class VanillaAutocompleteViewModel : VanillaBaseViewModel() {
         this.minCharLimit = minCharLimit
 
         autoCompletePublishSubject
-                .debounce(KeyUtils.DEBOUNCE_INTERVAL, TimeUnit.MILLISECONDS)
-                .distinctUntilChanged()
-                .filter { it.trim().length >= minCharLimit }
-                .flatMap {
-                    hashMap[KeyUtils.INPUT] = it
-                    callAutoCompleteAPI(hashMap)
-                }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ result ->
-                    onAutoCompleteResultReceived(result)
-                }, {
-                    autoCompleteLiveData.value = Resource(Status.ERROR, it)
-                    Logger.e(TAG, "Failed to get search results $it")
-                }).collect()
+            .debounce(KeyUtils.DEBOUNCE_INTERVAL, TimeUnit.MILLISECONDS)
+            .distinctUntilChanged()
+            .filter { it.trim().length >= minCharLimit }
+            .switchMap {
+                hashMap[KeyUtils.INPUT] = it
+                callAutoCompleteAPI(hashMap)
+            }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ result ->
+                onAutoCompleteResultReceived(result)
+            }, {
+                autoCompleteLiveData.value = Resource(Status.ERROR, it)
+                Logger.e(TAG, "Failed to get search results $it")
+            }).collect()
     }
 
-    private fun onAutoCompleteResultReceived(
-            result: AutocompletePredictionResponse
-    ) {
+    private fun onAutoCompleteResultReceived(result: AutocompletePredictionResponse) {
         if (result.status == KeyUtils.OK) {
             autoCompleteLiveData.value = Resource(Status.SUCCESS, result)
         } else {
@@ -71,31 +68,32 @@ class VanillaAutocompleteViewModel : VanillaBaseViewModel() {
 
     private fun callAutoCompleteAPI(hashMap: HashMap<String, String>): Observable<AutocompletePredictionResponse> {
         return WebApiClient.webApi.searchAutoCompletePredictions(hashMap)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
     }
 
     fun fetchPlaceDetails(placeId: String, apiKey: String) {
         vanillaAddressLiveData.value = Resource(Status.LOADING)
         val hashMap = HashMap<String, String>().apply {
             put(
-                    "fields",
-                    "address_component,adr_address,alt_id,formatted_address,geometry,icon,id,name,permanently_closed,photo,place_id,plus_code,scope,type,url,utc_offset,vicinity")
+                "fields",
+                "address_component,adr_address,alt_id,formatted_address,geometry,icon,id,name,permanently_closed,photo,place_id,plus_code,scope,type,url,utc_offset,vicinity"
+            )
             put("key", apiKey)
             put("placeid", placeId)
         }
 
         WebApiClient.webApi.fetchPlaceDetails(hashMap)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    if (it.status == KeyUtils.OK) {
-                        vanillaAddressLiveData.value = Resource(Status.SUCCESS, it)
-                    } else {
-                        vanillaAddressLiveData.value = Resource(Status.ERROR, it)
-                    }
-                }, {
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                if (it.status == KeyUtils.OK) {
+                    vanillaAddressLiveData.value = Resource(Status.SUCCESS, it)
+                } else {
                     vanillaAddressLiveData.value = Resource(Status.ERROR, it)
-                }).collect()
+                }
+            }, {
+                vanillaAddressLiveData.value = Resource(Status.ERROR, it)
+            }).collect()
     }
 }
