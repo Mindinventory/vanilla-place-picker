@@ -1,30 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activity.SampleActivity">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="8dp">
 
-            <!--START Place Picker Search/Map-->
-            <LinearLayout
+        <!--START Place Picker Search/Map-->
+        <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="2">
 
-                <!--Place Picker (Search)-->
-                <androidx.cardview.widget.CardView
+            <!--Place Picker (Search)-->
+            <androidx.cardview.widget.CardView
                     android:id="@+id/cardviewPlacePickerSearch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -32,7 +27,7 @@
                     android:layout_weight="1"
                     app:cardCornerRadius="3dp">
 
-                    <LinearLayout
+                <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="?attr/selectableItemBackgroundBorderless"
@@ -40,27 +35,27 @@
                         android:paddingTop="5dp"
                         android:paddingBottom="5dp">
 
-                        <ImageView
+                    <ImageView
                             android:layout_width="match_parent"
                             android:layout_height="150dp"
                             android:layout_marginLeft="16dp"
                             android:layout_marginRight="16dp"
                             android:contentDescription="@string/app_name"
-                            app:srcCompat="@drawable/ic_undraw_note_list" />
+                            app:srcCompat="@drawable/ic_undraw_note_list"/>
 
-                        <TextView
+                    <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:fontFamily="@font/opensans_reg"
                             android:gravity="center"
                             android:text="@string/place_picker_search"
-                            android:textSize="16sp" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                            android:textSize="16sp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-                <!--Place Picker (Map)-->
-                <androidx.cardview.widget.CardView
+            <!--Place Picker (Map)-->
+            <androidx.cardview.widget.CardView
                     android:id="@+id/cardviewPlacePickerMap"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -68,7 +63,7 @@
                     android:layout_weight="1"
                     app:cardCornerRadius="3dp">
 
-                    <LinearLayout
+                <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="?attr/selectableItemBackgroundBorderless"
@@ -76,29 +71,29 @@
                         android:paddingTop="5dp"
                         android:paddingBottom="5dp">
 
-                        <ImageView
+                    <ImageView
                             android:layout_width="match_parent"
                             android:layout_height="150dp"
                             android:layout_marginLeft="16dp"
                             android:layout_marginRight="16dp"
                             android:contentDescription="@string/app_name"
-                            app:srcCompat="@drawable/ic_undraw_map" />
+                            app:srcCompat="@drawable/ic_undraw_map"/>
 
-                        <TextView
+                    <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:fontFamily="@font/opensans_reg"
                             android:gravity="center"
                             android:text="@string/place_picker_map"
-                            android:textSize="16sp" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-            </LinearLayout>
-            <!--END Place Picker Search/Map-->
+                            android:textSize="16sp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+        <!--END Place Picker Search/Map-->
 
-            <!--START Selected Place-->
-            <androidx.cardview.widget.CardView
+        <!--START Selected Place-->
+        <androidx.cardview.widget.CardView
                 android:id="@+id/cardviewSelectedPlace"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -106,7 +101,7 @@
                 android:visibility="gone"
                 app:cardCornerRadius="3dp">
 
-                <LinearLayout
+            <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackgroundBorderless"
@@ -114,15 +109,15 @@
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp">
 
-                    <ImageView
+                <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
                         android:layout_marginLeft="16dp"
                         android:layout_marginRight="16dp"
                         android:contentDescription="@string/app_name"
-                        app:srcCompat="@drawable/ic_undraw_address" />
+                        app:srcCompat="@drawable/ic_undraw_address"/>
 
-                    <TextView
+                <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
@@ -130,21 +125,19 @@
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
                         android:text="@string/selected_place"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"/>
 
-                    <TextView
+                <TextView
                         android:id="@+id/tvSelectedPlace"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/opensans_reg"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
-                        android:textColor="@android:color/black"
                         android:textSize="16sp"
-                        tools:text="Selected Place" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-            <!--END Selected Place-->
-        </LinearLayout>
-    </ScrollView>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+                        tools:text="Selected Place"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+        <!--END Selected Place-->
+    </LinearLayout>
+</ScrollView>

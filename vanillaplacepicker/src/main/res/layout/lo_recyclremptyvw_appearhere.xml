@@ -12,10 +12,11 @@
     android:orientation="vertical">
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:layout_width="250dp"
-        android:layout_height="180dp"
-        android:layout_gravity="center"
-        app:srcCompat="@drawable/ic_undraw_search" />
+            android:id="@+id/ivPlaceHolder"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/ic_undraw_search" />
 
     <TextView
         android:layout_width="match_parent"
@@ -24,6 +25,5 @@
         android:fontFamily="@font/opensans_reg"
         android:gravity="center"
         android:text="@string/search_results_appear_here"
-        android:textColor="@color/gray5B"
         android:textSize="24sp" />
 </LinearLayout>
