@@ -1,20 +1,42 @@
 package com.vanillaplacepicker.presentation.builder
 
+import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.widget.Autocomplete
+import com.vanillaplacepicker.data.VanillaAddress
+import com.vanillaplacepicker.data.common.AutoCompleteAddressDetailsMapper
 import com.vanillaplacepicker.extenstion.isRequiredField
-import com.vanillaplacepicker.presentation.autocomplete.VanillaAutocompleteActivity
 import com.vanillaplacepicker.presentation.map.VanillaMapActivity
 import com.vanillaplacepicker.utils.*
 import wrap
+
 
 class VanillaPlacePicker {
 
     companion object {
         val TAG = VanillaPlacePicker::class.java.simpleName
+
+        fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): VanillaAddress? {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                when (requestCode) {
+                    KeyUtils.REQUEST_PLACE_PICKER -> {
+                        val selectedPlace = data.getSerializableExtra(KeyUtils.SELECTED_PLACE)
+                        return if (selectedPlace is VanillaAddress) {
+                            selectedPlace
+                        } else {
+                            val place = Autocomplete.getPlaceFromIntent(data)
+                            AutoCompleteAddressDetailsMapper.apply(place)
+                        }
+                    }
+                }
+            }
+            return null
+        }
     }
 
     class Builder(private val context: Context) {
@@ -29,11 +51,10 @@ class VanillaPlacePicker {
         }
 
         /**
-         * When this parameter is used,
-         * the country name is omitted from the resulting formatted_address for results in the specified region.
+         * Filter addresses by country name ex. "US"
          */
-        fun setRegion(region: String): Builder {
-            vanillaConfig.region = region
+        fun setCountry(country: String): Builder {
+            vanillaConfig.country = country
             return this
         }
 
@@ -47,99 +68,10 @@ class VanillaPlacePicker {
         }
 
         /**
-         * Defines the distance (in meters) within which to bias place results.
-         */
-        fun setRadius(radius: Int): Builder {
-            vanillaConfig.radius = radius
-            return this
-        }
-
-        /**
-         * Set default langauge for results
-         */
-        fun setLanguage(language: String): Builder {
-            vanillaConfig.language = language
-            return this
-        }
-
-        /**
-         * Restricts results to only those places within the specified price level.
-         * Valid values are in the range from 0 (most affordable) to 4 (most expensive), inclusive.
-         */
-        fun setMinPrice(minPrice: Int): Builder {
-            vanillaConfig.minPrice = minPrice
-            return this
-        }
-
-        /**
-         * Restricts results to only those places within the specified price level.
-         * Valid values are in the range from 0 (most affordable) to 4 (most expensive), inclusive.
-         */
-        fun setMaxPrice(maxPrice: Int): Builder {
-            vanillaConfig.maxPrice = maxPrice
-            return this
-        }
-
-        /**
-         * Returns only those places that are open for business at the time the query is sent.
-         */
-        fun isOpenNow(openNow: Boolean): Builder {
-            vanillaConfig.isOpenNow = openNow
-            return this
-        }
-
-        fun setPageToken(pageToken: String): Builder {
-            vanillaConfig.pageToken = pageToken
-            return this
-        }
-
-        fun setTypes(types: String): Builder {
-            vanillaConfig.types = types
-            return this
-        }
-
-        /**
-         * Apply Tint color to Back, Clear button of PlacePicker AutoComplete header UI
-         */
-        fun setTintColor(colorResourceId: Int): Builder {
-            vanillaConfig.tintColor = colorResourceId
-            return this
-        }
-
-        /**
-         * Restrict user input limit to minimum char
-         */
-        fun setMinCharLimit(minCharLimit: Int): Builder {
-            vanillaConfig.minCharLimit = minCharLimit
-            return this
-        }
-
-        /**
-         * To add zone locale
-         */
-        fun zoneLocale(zoneLocale: String): Builder {
-            vanillaConfig.zoneLocale = zoneLocale
-            return this
-        }
-
-        /**
          * To restrict request zone by rect
          */
-        fun zoneRect(zoneRect: SearchZoneRect): Builder {
-            vanillaConfig.zoneRect = zoneRect
-            return this
-        }
-
-        fun zoneDefaultLocale(zoneDefaultLocale: Boolean): Builder {
-            vanillaConfig.zoneDefaultLocale = zoneDefaultLocale
-            return this
-        }
-
-        /**
-         * To enable satellite view in map
-         */
-        fun enableSatelliteView(enableSatelliteView: Boolean): Builder {
-            vanillaConfig.enableSatelliteView = enableSatelliteView
+        fun setLocationRestriction(leftLatLng: LatLng, rightLatLng: LatLng): Builder {
+            vanillaConfig.zoneRect = SearchZoneRect(leftLatLng, rightLatLng)
             return this
         }
 
@@ -182,14 +114,6 @@ class VanillaPlacePicker {
         }
 
         /**
-         * Set custom Place holder for autcomplete view
-         * */
-        fun setAutoCompletePlaceHolder(placeholderDrawableResId: Int): Builder {
-            vanillaConfig.autoCompletePlaceHolder = placeholderDrawableResId
-            return this
-        }
-
-        /**
          * Get Google Places API key
          */
         private fun getApiKey(): String {
@@ -214,12 +138,12 @@ class VanillaPlacePicker {
         }
 
         fun build(): Intent {
+            vanillaConfig.apiKey = getApiKey()
             val intent = if (vanillaConfig.pickerType == PickerType.AUTO_COMPLETE) {
-                Intent(context, VanillaAutocompleteActivity::class.java)
+                AutoCompleteUtils.getAutoCompleteIntent(context, vanillaConfig)
             } else {
                 Intent(context, VanillaMapActivity::class.java)
             }
-            vanillaConfig.apiKey = getApiKey()
             intent.putExtra(KeyUtils.EXTRA_CONFIG, vanillaConfig)
             return intent
         }

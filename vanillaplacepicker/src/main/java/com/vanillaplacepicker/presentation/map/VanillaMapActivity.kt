@@ -22,13 +22,13 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.vanillaplacepicker.R
 import com.vanillaplacepicker.data.GeoCoderAddressResponse
 import com.vanillaplacepicker.data.common.AddressMapperGoogleMap
 import com.vanillaplacepicker.domain.common.SafeObserver
 import com.vanillaplacepicker.extenstion.*
-import com.vanillaplacepicker.presentation.autocomplete.VanillaAutocompleteActivity
 import com.vanillaplacepicker.presentation.builder.VanillaConfig
 import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.service.FetchAddressIntentService
@@ -131,16 +131,12 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                 })
                 finish()
             }
-            R.id.tvAddress -> startVanillaAutocompleteActivity()
+            R.id.tvAddress -> startActivityForResult(
+                AutoCompleteUtils.getAutoCompleteIntent(this, vanillaConfig),
+                KeyUtils.REQUEST_PLACE_PICKER
+            )
             R.id.fabLocation -> isGpsEnabled()
         }
-    }
-
-    private fun startVanillaAutocompleteActivity() {
-        val intentPlacePicker = Intent(this, VanillaAutocompleteActivity::class.java).apply {
-            putExtra(KeyUtils.EXTRA_CONFIG, vanillaConfig)
-        }
-        startActivityForResult(intentPlacePicker, KeyUtils.REQUEST_PLACE_PICKER)
     }
 
     /**
@@ -158,9 +154,13 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             }
             when (resultCode) {
                 KeyUtils.SUCCESS_RESULT -> {
-                    selectedPlace = resultData.getSerializable(KeyUtils.RESULT_DATA_KEY) as GeoCoderAddressResponse
+                    selectedPlace =
+                        resultData.getSerializable(KeyUtils.RESULT_DATA_KEY) as GeoCoderAddressResponse
                     if (selectedPlace?.addressLine.isRequiredField()) {
-                        Logger.d(TAG, "AddressResultReceiver.onReceiveResult: address: ${selectedPlace?.addressLine}")
+                        Logger.d(
+                            TAG,
+                            "AddressResultReceiver.onReceiveResult: address: ${selectedPlace?.addressLine}"
+                        )
                         ivDone.showView()
                         tvAddress.text = selectedPlace?.addressLine
                     } else {
@@ -218,6 +218,15 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
          * (Before allow Location runtime permission, After that changed position of CompassButton)
          * */
         this.googleMap?.setPadding(0, 256, 0, 0)
+        vanillaConfig.zoneRect?.let {
+            this.googleMap?.setLatLngBoundsForCameraTarget(
+                LatLngBounds(
+                    it.upperRight,
+                    it.lowerLeft
+                )
+            )
+        }
+
         this.googleMap?.setOnCameraMoveListener {
             tvAddress.text = getString(R.string.searching)
             ivDone.hideView()
@@ -335,7 +344,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             // Check for the integer request code originally supplied to PlacePickerActivityForResult()
             KeyUtils.REQUEST_PLACE_PICKER -> when (resultCode) {
                 Activity.RESULT_OK -> {
-                    // data contains VanillaAddress object
+                    // data contains Place object
                     setResult(Activity.RESULT_OK, data)
                     finish()
                 }
@@ -343,7 +352,11 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             KeyUtils.REQUEST_PERMISSIONS_REQUEST_CODE -> {
@@ -411,12 +424,18 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             }.addOnFailureListener(this) { e ->
                 when ((e as ApiException).statusCode) {
                     LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
-                        Logger.i(TAG, resources.getString(R.string.location_settings_are_not_satisfied))
+                        Logger.i(
+                            TAG,
+                            resources.getString(R.string.location_settings_are_not_satisfied)
+                        )
                         try {
                             val rae = e as ResolvableApiException
                             rae.startResolutionForResult(this, KeyUtils.REQUEST_CHECK_SETTINGS)
                         } catch (sie: IntentSender.SendIntentException) {
-                            Logger.i(TAG, getString(R.string.pendingintent_unable_to_execute_request))
+                            Logger.i(
+                                TAG,
+                                getString(R.string.pendingintent_unable_to_execute_request)
+                            )
                             viewModel.fetchSavedLocation()
                             sie.printStackTrace()
                         }
