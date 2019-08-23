@@ -44,7 +44,7 @@ Developers often come across a requirement of adding precise location. So, a pla
     ```groovy
         dependencies {
             ...
-            implementation 'com.github.Mindinventory:VanillaPlacePicker:0.0.8'
+            implementation 'com.github.Mindinventory:VanillaPlacePicker:0.0.9'
         }
     ``` 
 
@@ -71,21 +71,14 @@ Developers often come across a requirement of adding precise location. So, a pla
                 .with(PickerType.MAP_WITH_AUTO_COMPLETE) // Select Picker type to enable autocompelte, map or both
                 .withLocation(23.057582, 72.534458)
                 .setPickerLanguage(PickerLanguage.HINDI) // Apply language to picker
-                .setTintColor(R.color.colorPrimaryAmber) // Apply Tint color to Back, Clear button of AutoComplete UI
-                /*
-                 * Configuration for AutoComplete UI
-                 */
-                .setRegion("IN")
-                .setLanguage("en")
-                .isOpenNow(true) // Returns only those places that are open for business at the time the query is sent.
-                .setAutoCompletePlaceHolder(R.drawable.ic_undraw_search) // To add custom place holder in autocomplete screen
-                ...
-
+                .setLocationRestriction(LatLng(23.0558088,72.5325067), LatLng(23.0587592,72.5357321)) // Restrict location bounds in map and autocomplete
+                .setCountry("IN") // Only for Autocomplete
+             
                 /*
                  * Configuration for Map UI
                  */
                 .setMapType(MapType.SATELLITE) // Choose map type (Only applicable for map screen) 
-                .setMapStyle(R.raw.style_json) // containing the JSON style declaration for night-mode styling
+                .setMapStyle(R.raw.style_json) // Containing the JSON style declaration for night-mode styling
                 .setMapPinDrawable(android.R.drawable.ic_menu_mylocation) // To give custom pin image for map marker
                 ...
 
@@ -101,7 +94,7 @@ Developers often come across a requirement of adding precise location. So, a pla
             if (resultCode == Activity.RESULT_OK && data != null) {
                 when (requestCode) {
                     REQUEST_PLACE_PICKER -> {
-                        val vanillaAddress = data.getSerializableExtra(KeyUtils.SELECTED_PLACE) as VanillaAddress
+                         val vanillaAddress = VanillaPlacePicker.onActivityResult(requestCode, resultCode, data)
                         // Do needful with your vanillaAddress
                     }
                 }
