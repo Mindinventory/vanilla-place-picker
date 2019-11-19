@@ -15,6 +15,7 @@ import com.vanillaplacepicker.presentation.map.VanillaMapActivity
 import com.vanillaplacepicker.utils.*
 import wrap
 
+
 class VanillaPlacePicker {
 
     companion object {

@@ -95,7 +95,6 @@ Developers often come across a requirement of adding precise location. So, a pla
                 when (requestCode) {
                     REQUEST_PLACE_PICKER -> {
                          val vanillaAddress = VanillaPlacePicker.onActivityResult(data)
-                        // Do needful with your vanillaAddress
                     }
                 }
             }
