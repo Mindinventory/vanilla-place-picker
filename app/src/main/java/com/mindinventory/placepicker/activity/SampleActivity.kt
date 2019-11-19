@@ -52,7 +52,7 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
             when (requestCode) {
                 KeyUtils.REQUEST_PLACE_PICKER -> {
                     val vanillaAddress =
-                        VanillaPlacePicker.onActivityResult(requestCode, resultCode, data)
+                        VanillaPlacePicker.onActivityResult(data)
                     vanillaAddress?.let {
                         cardviewSelectedPlace.showView()
                         tvSelectedPlace.text = it.formattedAddress

@@ -44,7 +44,7 @@ Developers often come across a requirement of adding precise location. So, a pla
     ```groovy
         dependencies {
             ...
-            implementation 'com.github.Mindinventory:VanillaPlacePicker:0.0.9'
+            implementation 'com.github.Mindinventory:VanillaPlacePicker:0.1.0'
         }
     ``` 
 
@@ -94,7 +94,7 @@ Developers often come across a requirement of adding precise location. So, a pla
             if (resultCode == Activity.RESULT_OK && data != null) {
                 when (requestCode) {
                     REQUEST_PLACE_PICKER -> {
-                         val vanillaAddress = VanillaPlacePicker.onActivityResult(requestCode, resultCode, data)
+                         val vanillaAddress = VanillaPlacePicker.onActivityResult(data)
                         // Do needful with your vanillaAddress
                     }
                 }
