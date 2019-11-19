@@ -21,18 +21,14 @@ class VanillaPlacePicker {
     companion object {
         val TAG = VanillaPlacePicker::class.java.simpleName
 
-        fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): VanillaAddress? {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                when (requestCode) {
-                    KeyUtils.REQUEST_PLACE_PICKER -> {
-                        val selectedPlace = data.getSerializableExtra(KeyUtils.SELECTED_PLACE)
-                        return if (selectedPlace is VanillaAddress) {
-                            selectedPlace
-                        } else {
-                            val place = Autocomplete.getPlaceFromIntent(data)
-                            AutoCompleteAddressDetailsMapper.apply(place)
-                        }
-                    }
+        fun onActivityResult(data: Intent?): VanillaAddress? {
+            if (data != null) {
+                val selectedPlace = data.getSerializableExtra(KeyUtils.SELECTED_PLACE)
+                return if (selectedPlace is VanillaAddress) {
+                    selectedPlace
+                } else {
+                    val place = Autocomplete.getPlaceFromIntent(data)
+                    AutoCompleteAddressDetailsMapper.apply(place)
                 }
             }
             return null
