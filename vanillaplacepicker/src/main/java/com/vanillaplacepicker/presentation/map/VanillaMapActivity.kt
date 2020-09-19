@@ -35,7 +35,7 @@ import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.service.FetchAddressIntentService
 import com.vanillaplacepicker.utils.*
 import kotlinx.android.synthetic.main.activity_vanilla_map.*
-import kotlinx.android.synthetic.main.toolbar.*
+import kotlinx.android.synthetic.main.custom_toolbar.*
 
 class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), OnMapReadyCallback,
     View.OnClickListener {
