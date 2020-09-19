@@ -44,7 +44,7 @@ Developers often come across a requirement of adding precise location. So, a pla
     ```groovy
         dependencies {
             ...
-            implementation 'com.github.Mindinventory:VanillaPlacePicker:0.1.0'
+            implementation 'com.github.Mindinventory:VanillaPlacePicker:0.1.1'
         }
     ``` 
 
@@ -73,7 +73,8 @@ Developers often come across a requirement of adding precise location. So, a pla
                 .setPickerLanguage(PickerLanguage.HINDI) // Apply language to picker
                 .setLocationRestriction(LatLng(23.0558088,72.5325067), LatLng(23.0587592,72.5357321)) // Restrict location bounds in map and autocomplete
                 .setCountry("IN") // Only for Autocomplete
-             
+                .enableShowMapAfterSearchResult(true) // To show the map after selecting the place from place picker only for PickerType.MAP_WITH_AUTO_COMPLETE
+
                 /*
                  * Configuration for Map UI
                  */

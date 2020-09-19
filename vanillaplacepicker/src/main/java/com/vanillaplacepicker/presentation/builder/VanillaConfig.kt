@@ -21,5 +21,6 @@ data class VanillaConfig(
     var enableSatelliteView: Boolean = false,
     var mapStyleJSONResId: Int = KeyUtils.DEFAULT_STYLE_JSON_RESID,
     var mapType: MapType = MapType.NORMAL,
+    var enableShowMapAfterSearchResult: Boolean = false,
     @DrawableRes var mapPinDrawable: Int? = null
 ) : Parcelable
