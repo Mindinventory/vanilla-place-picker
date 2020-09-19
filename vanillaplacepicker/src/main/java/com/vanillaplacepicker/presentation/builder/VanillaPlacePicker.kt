@@ -94,6 +94,17 @@ class VanillaPlacePicker {
         }
 
         /**
+         * To show the map after selecting the place from place picker
+         * To insure that user needs to navigate to map screen after the selecting the place from the place picker
+         * @param  enableShowMapAfterSearchResult true to show the map after search result, false otherwise
+         * @return Returns a VanillaPlacePicker.Builder instance.
+         */
+        fun enableShowMapAfterSearchResult(enableShowMapAfterSearchResult: Boolean): Builder {
+            vanillaConfig.enableShowMapAfterSearchResult = enableShowMapAfterSearchResult
+            return this
+        }
+
+        /**
          * Set custom Map Pin image
          * */
         fun setMapPinDrawable(mapPinDrawableResId: Int): Builder {

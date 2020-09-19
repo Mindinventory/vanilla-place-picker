@@ -30,11 +30,12 @@ import com.vanillaplacepicker.data.common.AddressMapperGoogleMap
 import com.vanillaplacepicker.domain.common.SafeObserver
 import com.vanillaplacepicker.extenstion.*
 import com.vanillaplacepicker.presentation.builder.VanillaConfig
+import com.vanillaplacepicker.presentation.builder.VanillaPlacePicker
 import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.service.FetchAddressIntentService
 import com.vanillaplacepicker.utils.*
 import kotlinx.android.synthetic.main.activity_vanilla_map.*
-import kotlinx.android.synthetic.main.toolbar.*
+import kotlinx.android.synthetic.main.custom_toolbar.*
 
 class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), OnMapReadyCallback,
     View.OnClickListener {
@@ -345,11 +346,30 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             KeyUtils.REQUEST_PLACE_PICKER -> when (resultCode) {
                 Activity.RESULT_OK -> {
                     // data contains Place object
-                    setResult(Activity.RESULT_OK, data)
-                    finish()
+                    if (vanillaConfig.enableShowMapAfterSearchResult) {
+                        navigateMapToResult(data)
+                    } else {
+                        setResult(Activity.RESULT_OK, data)
+                        finish()
+                    }
                 }
             }
         }
+    }
+
+    private fun navigateMapToResult(data: Intent?) {
+        val vanillaAddress = VanillaPlacePicker.onActivityResult(data)
+        this.googleMap?.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(
+                    vanillaAddress?.latitude ?: KeyUtils.DEFAULT_LOCATION,
+                    vanillaAddress?.longitude ?: KeyUtils.DEFAULT_LOCATION
+                ),
+                KeyUtils.DEFAULT_ZOOM_LEVEL
+            ),
+            KeyUtils.GOOGLE_MAP_CAMERA_ANIMATE_DURATION,
+            null
+        )
     }
 
     override fun onRequestPermissionsResult(

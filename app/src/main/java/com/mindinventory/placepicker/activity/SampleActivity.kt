@@ -40,6 +40,7 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
                     .with(PickerType.MAP_WITH_AUTO_COMPLETE)
                     .setMapType(MapType.SATELLITE)
                     .setPickerLanguage(PickerLanguage.ENGLISH)
+                    .enableShowMapAfterSearchResult(true)
                     .build()
                 startActivityForResult(intent, KeyUtils.REQUEST_PLACE_PICKER)
             }
