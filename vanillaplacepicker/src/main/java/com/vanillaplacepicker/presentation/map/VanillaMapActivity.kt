@@ -222,8 +222,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         vanillaConfig.zoneRect?.let {
             this.googleMap?.setLatLngBoundsForCameraTarget(
                 LatLngBounds(
-                    it.upperRight,
-                    it.lowerLeft
+                    it.lowerLeft,
+                    it.upperRight
                 )
             )
         }
