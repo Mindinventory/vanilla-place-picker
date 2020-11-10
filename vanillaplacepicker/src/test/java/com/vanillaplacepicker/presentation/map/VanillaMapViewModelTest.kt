@@ -1,29 +1,19 @@
 package com.vanillaplacepicker.presentation.map
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.google.android.gms.maps.model.LatLng
+import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.whenever
+import com.vanillaplacepicker.presentation.common.TestRulesListener
 import com.vanillaplacepicker.utils.SharedPrefs
-import org.hamcrest.CoreMatchers
-import org.hamcrest.MatcherAssert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
-import org.mockito.Captor
+import io.kotlintest.extensions.TestListener
+import io.kotlintest.shouldBe
+import io.kotlintest.specs.BehaviorSpec
 import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
-import org.mockito.junit.MockitoJUnit
-import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.junit.MockitoRule
 
-@RunWith(MockitoJUnitRunner::class)
-class VanillaMapViewModelTest {
+class VanillaMapViewModelTest : BehaviorSpec() {
 
     private val latitude = 23.058759689331055
     private val longitude = 72.53572845458984
@@ -32,36 +22,30 @@ class VanillaMapViewModelTest {
     //output value
     private val successLatLng = latLng
 
-    @get:Rule
-    val mockitoRule: MockitoRule = MockitoJUnit.rule()
-
-    @get:Rule
-    var rule: TestRule = InstantTaskExecutorRule()
-
     //mock dependencies
     private val sharedPrefs = mock<SharedPrefs>()
     private val vanillaMapViewModel by lazy { VanillaMapViewModel(sharedPrefs) }
     private var vanillaMapObserver = mock<Observer<LatLng>>()
 
-    @Captor
-    var argumentCaptor: ArgumentCaptor<LatLng>? = null
+    override fun listeners(): List<TestListener> = listOf(TestRulesListener)
 
-    @Before
-    fun setUp() {
-        MockitoAnnotations.initMocks(this)
+    init {
+        fetchSavedLocationSuccess()
     }
 
-    @Test
-    fun fetchSavedLocationSuccess() {
-        stubFetchSavedLocationSuccess()
-        vanillaMapViewModel.latLngLiveData.observeForever(vanillaMapObserver)
-        vanillaMapViewModel.fetchSavedLocation()
-        argumentCaptor?.apply {
-            Mockito.verify(vanillaMapObserver, times(1)).onChanged(capture())
-            MatcherAssert.assertThat(
-                value,
-                CoreMatchers.`is`(successLatLng)
-            )
+    private fun fetchSavedLocationSuccess() {
+        Given("Fetch saved location") {
+            When("LatLng Available") {
+                stubFetchSavedLocationSuccess()
+                vanillaMapViewModel.latLngLiveData.observeForever(vanillaMapObserver)
+                vanillaMapViewModel.fetchSavedLocation()
+                Then("Fetch saved location success") {
+                    argumentCaptor<LatLng>().apply {
+                        Mockito.verify(vanillaMapObserver, times(1)).onChanged(capture())
+                        LatLng(firstValue.latitude, firstValue.longitude) shouldBe successLatLng
+                    }
+                }
+            }
         }
     }
 
