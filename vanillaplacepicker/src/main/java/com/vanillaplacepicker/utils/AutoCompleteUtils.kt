@@ -39,7 +39,7 @@ object AutoCompleteUtils {
             fields
         )
 
-        if (vanillaConfig.country.isNullOrBlank()) {
+        if (!vanillaConfig.country.isNullOrBlank()) {
             autocomplete.setCountry(vanillaConfig.country)
         }
         vanillaConfig.zoneRect?.let {
