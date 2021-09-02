@@ -24,9 +24,7 @@ Developers often come across a requirement of adding precise location. So, a pla
 
 * Dependencies
 
-    Step 1. Add the JitPack repository to your build file
-    
-    Add it in your root build.gradle at the end of repositories:
+    Step 1. Add the JitPack repository in your project build.gradle:
 
     ```groovy
 	    allprojects {
@@ -36,7 +34,19 @@ Developers often come across a requirement of adding precise location. So, a pla
 		    }
 	    }
     ``` 
+    
+    **or**
+    
+    If Android studio version is Arctic Fox then add it in your settings.gradle:
 
+    ```groovy
+	   dependencyResolutionManagement {
+    		repositories {
+        		...
+        		maven { url 'https://jitpack.io' }
+    		}
+	   }
+    ``` 
     Step 2. Add the dependency
     
     Add it in your app module build.gradle:
@@ -47,7 +57,7 @@ Developers often come across a requirement of adding precise location. So, a pla
             implementation 'com.github.Mindinventory:VanillaPlacePicker:0.1.3'
         }
     ``` 
-
+	
 * Implementation
 
     Step 1. Add GOOGLE MAP API KEY to your AndroidManifest.xml:
