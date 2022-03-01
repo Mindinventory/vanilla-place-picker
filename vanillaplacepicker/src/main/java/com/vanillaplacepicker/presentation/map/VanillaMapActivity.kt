@@ -447,7 +447,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private fun startLocationUpdates() {
         // Begin by checking if the device has the necessary location settings.
         LocationServices.getSettingsClient(this)
-            .checkLocationSettings(locationSettingRequest.build())!!
+            .checkLocationSettings(locationSettingRequest.build())
             .addOnSuccessListener(this) {
                 getLocationFromFusedLocation()
             }.addOnFailureListener(this) { e ->
@@ -509,7 +509,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
 
                 override fun onLocationAvailability(locationAvailability: LocationAvailability) {
                     super.onLocationAvailability(locationAvailability)
-                    if (!locationAvailability!!.isLocationAvailable) {
+                    if (!locationAvailability.isLocationAvailable) {
                         viewModel.fetchSavedLocation()
                     }
                 }

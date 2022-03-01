@@ -10,6 +10,7 @@ Developers often come across a requirement of adding precise location. So, a pla
 
 ### Key features
 
+* Android 12 support
 * Simple implementation for place picker either using Autocomplete, Map or both
 * Set your own custom map styles
 * Customise map pin icon
@@ -105,7 +106,7 @@ Developers often come across a requirement of adding precise location. So, a pla
     
 ### Requirements
 
-* minSdkVersion >= 17
+* minSdkVersion >= 19
 * Androidx
 
 # LICENSE!
