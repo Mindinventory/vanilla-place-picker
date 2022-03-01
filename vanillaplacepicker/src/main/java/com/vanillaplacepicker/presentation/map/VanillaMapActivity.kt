@@ -50,10 +50,12 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private val startLocationHandler = Handler()
 
     private lateinit var vanillaConfig: VanillaConfig
+
     // Belows are used in PlacePickerActivity
     private var isRequestedWithLocation = false
     private val sharedPrefs by lazy { SharedPrefs(this) }
     private var fetchLocationForFirstTime = false
+
 
     override fun buildViewModel(): VanillaMapViewModel {
         return ViewModelProviders.of(
@@ -76,8 +78,9 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             tvAddress.setOnClickListener(this)
         }
         fabLocation.setOnClickListener(this)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
         if (!isRequestedWithLocation) {
-            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
             findLocation()
         }
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
@@ -87,11 +90,12 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
 
     override fun getBundle() {
         if (hasExtra(KeyUtils.EXTRA_CONFIG)) {
-            vanillaConfig = intent.getParcelableExtra(KeyUtils.EXTRA_CONFIG)
+            vanillaConfig = intent.getParcelableExtra(KeyUtils.EXTRA_CONFIG)!!
         }
         if (vanillaConfig.latitude != KeyUtils.DEFAULT_LOCATION && vanillaConfig.longitude != KeyUtils.DEFAULT_LOCATION) {
             isRequestedWithLocation = true
         }
+        startLocationRequestPermission()
     }
 
     // Set custom image drawable to Map Pin
@@ -143,8 +147,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     /**
      * Receiver for data sent from FetchAddressIntentService.
      */
-    private inner class AddressResultReceiver internal constructor(
-        handler: Handler
+    private inner class AddressResultReceiver(
+        handler: Handler,
     ) : ResultReceiver(handler) {
         /**
          * Receives data sent from FetchAddressIntentService and updates the UI.
@@ -183,7 +187,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
      * Manipulates the map when it's available.
      * The API invokes this callback when the map is ready for use.
      */
-    override fun onMapReady(googleMap: GoogleMap?) {
+    override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
         this.googleMap?.clear()
         if (vanillaConfig.enableSatelliteView)
@@ -375,7 +379,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
@@ -405,6 +409,11 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
      * please do not make this function as private as we are using this one to trigger location related flow from client base.
      */
     private fun findLocation() {
+
+        startLocationUpdates()
+    }
+
+    fun startLocationRequestPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // this mean device os is greater or equal to Marshmallow.
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -422,10 +431,9 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                 return
             }
         }
-        startLocationUpdates()
     }
 
-    private val locationRequest = LocationRequest().apply {
+    private val locationRequest = LocationRequest.create().apply {
         this.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         this.interval = KeyUtils.DEFAULT_FETCH_LOCATION_INTERVAL
     }
@@ -438,7 +446,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
      */
     private fun startLocationUpdates() {
         // Begin by checking if the device has the necessary location settings.
-        LocationServices.getSettingsClient(this).checkLocationSettings(locationSettingRequest.build())!!
+        LocationServices.getSettingsClient(this)
+            .checkLocationSettings(locationSettingRequest.build())!!
             .addOnSuccessListener(this) {
                 getLocationFromFusedLocation()
             }.addOnFailureListener(this) { e ->
@@ -485,9 +494,10 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         fusedLocationProviderClient?.requestLocationUpdates(
             locationRequest,
             object : LocationCallback() {
-                override fun onLocationResult(locationResult: LocationResult?) {
+                override fun onLocationResult(locationResult: LocationResult) {
                     super.onLocationResult(locationResult)
-                    val location = locationResult!!.lastLocation
+                    val location = locationResult.lastLocation
+                    Log.e("location", location.toString())
                     if (location != null) {
                         viewModel.saveLatLngToSharedPref(location.latitude, location.longitude)
                     }
@@ -497,14 +507,14 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                     }
                 }
 
-                override fun onLocationAvailability(locationAvailability: LocationAvailability?) {
+                override fun onLocationAvailability(locationAvailability: LocationAvailability) {
                     super.onLocationAvailability(locationAvailability)
                     if (!locationAvailability!!.isLocationAvailable) {
                         viewModel.fetchSavedLocation()
                     }
                 }
             },
-            Looper.myLooper()
+            Looper.myLooper()!!
         )
     }
 
@@ -534,12 +544,18 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         } catch (e: Exception) {
             Logger.e(TAG, "isNetworkEnabled >> $e")
         }
-
-        if (!isGpeEnabled && !isNetworkEnabled) {
-            //enable gps
+        if (!fetchLocationForFirstTime){
             findLocation()
-        } else {
+        }else{
             viewModel.fetchSavedLocation()
         }
+
+//        if (!isGpeEnabled && !isNetworkEnabled) {
+//            //enable gps
+//            findLocation()
+//        } else{
+//            viewModel.fetchSavedLocation()
+//        }
+
     }
 }

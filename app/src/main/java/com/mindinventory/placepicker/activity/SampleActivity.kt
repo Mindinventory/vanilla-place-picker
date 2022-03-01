@@ -36,9 +36,9 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
 
             R.id.cardviewPlacePickerMap -> {
                 val intent = VanillaPlacePicker.Builder(this)
-                    .withLocation(23.057582, 72.534458)
                     .with(PickerType.MAP_WITH_AUTO_COMPLETE)
                     .setMapType(MapType.SATELLITE)
+                    .withLocation(23.057582, 72.534458)
                     .setPickerLanguage(PickerLanguage.ENGLISH)
                     .enableShowMapAfterSearchResult(true)
                     .build()

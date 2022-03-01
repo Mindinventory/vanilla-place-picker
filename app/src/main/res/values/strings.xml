@@ -4,5 +4,5 @@
     <string name="place_picker_map">Place Picker\n(Map)</string>
     <string name="selected_place">Selected Place</string>
     <!--Google Map Key-->
-    <string name="google_maps_key">YOUR_API_KEY_HERE</string>
+    <string name="google_maps_key">AIzaSyBMYYrxX5dlRzDkjW46GtsItGQgnDIncS4</string>
 </resources>
