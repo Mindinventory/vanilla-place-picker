@@ -15,6 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:exported="true"
             android:name="com.mindinventory.placepicker.activity.SampleActivity"
             android:screenOrientation="portrait">
             <intent-filter>

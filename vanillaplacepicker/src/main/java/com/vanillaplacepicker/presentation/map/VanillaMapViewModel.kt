@@ -1,11 +1,11 @@
 package com.vanillaplacepicker.presentation.map
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
-import com.vanillaplacepicker.presentation.common.VanillaBaseViewModel
 import com.vanillaplacepicker.utils.SharedPrefs
 
-class VanillaMapViewModel(private val sharedPrefs: SharedPrefs) : VanillaBaseViewModel() {
+class VanillaMapViewModel(private val sharedPrefs: SharedPrefs) : ViewModel() {
 
     var latLngLiveData = MutableLiveData<LatLng>()
 
