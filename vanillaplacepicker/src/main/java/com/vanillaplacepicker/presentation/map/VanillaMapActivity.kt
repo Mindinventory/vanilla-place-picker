@@ -2,9 +2,11 @@ package com.vanillaplacepicker.presentation.map
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.*
 import android.util.Log
 import android.view.View
@@ -529,20 +531,20 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     }
 
     private fun isGpsEnabled() {
-//        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-//        var isGpeEnabled = false
-//        var isNetworkEnabled = false
-//        try {
-//            isGpeEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-//        } catch (e: Exception) {
-//            Logger.e(TAG, "isGpsEnabled >> $e")
-//        }
-//
-//        try {
-//            isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-//        } catch (e: Exception) {
-//            Logger.e(TAG, "isNetworkEnabled >> $e")
-//        }
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        var isGpeEnabled = false
+        var isNetworkEnabled = false
+        try {
+            isGpeEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        } catch (e: Exception) {
+            Logger.e(TAG, "isGpsEnabled >> $e")
+        }
+
+        try {
+            isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        } catch (e: Exception) {
+            Logger.e(TAG, "isNetworkEnabled >> $e")
+        }
         if (!fetchLocationForFirstTime) {
             startLocationUpdates()
         } else {
