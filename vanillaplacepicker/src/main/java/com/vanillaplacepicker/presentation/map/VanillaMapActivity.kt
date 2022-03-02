@@ -397,7 +397,9 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                         // If user interaction was interrupted, the permission request is cancelled and you receive empty arrays.
                         Log.d(TAG, resources.getString(R.string.user_interaction_was_cancelled))
                     }
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED -> startLocationUpdates()
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED -> {
+                        ToastUtils.showToast(this, R.string.permission_granted)
+                    }
                     else -> showAlertDialog(
                         R.string.missing_permission_message,
                         R.string.missing_permission_title,

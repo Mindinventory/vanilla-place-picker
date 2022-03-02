@@ -19,7 +19,7 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="permission">Permission</string>
-
+    <string name="permission_granted">Permission Granted</string>
     <!--Map Activity-->
     <string name="searching">Searching…</string>
 
