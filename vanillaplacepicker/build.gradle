@@ -10,6 +10,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 32
+        versionCode 14
+        versionName "0.2.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
