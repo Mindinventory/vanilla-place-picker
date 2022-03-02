@@ -5,7 +5,7 @@ import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 
-abstract class VanillaBaseViewModelActivity<T : ViewModel>:AppCompatActivity(){
+abstract class VanillaBaseViewModelActivity<T : ViewModel> : AppCompatActivity() {
 
     protected val viewModel by lazy { buildViewModel() }
 

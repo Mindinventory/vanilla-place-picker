@@ -379,7 +379,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray,
+        grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
@@ -491,31 +491,33 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         }
 
         fusedLocationProviderClient?.flushLocations()
-        fusedLocationProviderClient?.requestLocationUpdates(
-            locationRequest,
-            object : LocationCallback() {
-                override fun onLocationResult(locationResult: LocationResult) {
-                    super.onLocationResult(locationResult)
-                    val location = locationResult.lastLocation
-                    Log.e("location", location.toString())
-                    if (location != null) {
-                        viewModel.saveLatLngToSharedPref(location.latitude, location.longitude)
+        Looper.myLooper()?.let {
+            fusedLocationProviderClient?.requestLocationUpdates(
+                locationRequest,
+                object : LocationCallback() {
+                    override fun onLocationResult(locationResult: LocationResult) {
+                        super.onLocationResult(locationResult)
+                        val location = locationResult.lastLocation
+                        Log.e("location", location.toString())
+                        if (location != null) {
+                            viewModel.saveLatLngToSharedPref(location.latitude, location.longitude)
+                        }
+                        if (!fetchLocationForFirstTime) {
+                            viewModel.fetchSavedLocation()
+                            fetchLocationForFirstTime = true
+                        }
                     }
-                    if (!fetchLocationForFirstTime) {
-                        viewModel.fetchSavedLocation()
-                        fetchLocationForFirstTime = true
-                    }
-                }
 
-                override fun onLocationAvailability(locationAvailability: LocationAvailability) {
-                    super.onLocationAvailability(locationAvailability)
-                    if (!locationAvailability.isLocationAvailable) {
-                        viewModel.fetchSavedLocation()
+                    override fun onLocationAvailability(locationAvailability: LocationAvailability) {
+                        super.onLocationAvailability(locationAvailability)
+                        if (!locationAvailability.isLocationAvailable) {
+                            viewModel.fetchSavedLocation()
+                        }
                     }
-                }
-            },
-            Looper.myLooper()!!
-        )
+                },
+                it
+            )
+        }
     }
 
 
@@ -549,13 +551,5 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         }else{
             viewModel.fetchSavedLocation()
         }
-
-//        if (!isGpeEnabled && !isNetworkEnabled) {
-//            //enable gps
-//            findLocation()
-//        } else{
-//            viewModel.fetchSavedLocation()
-//        }
-
     }
 }
