@@ -4,7 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 
 class SharedPrefs(context: Context) {
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     var deviceLatitude: Float
         set(value) = put(PREF_DEVICE_LATITUDE, value)
@@ -13,10 +14,6 @@ class SharedPrefs(context: Context) {
     var deviceLongitude: Float
         set(value) = put(PREF_DEVICE_LONGITUDE, value)
         get() = get(PREF_DEVICE_LONGITUDE, Float::class.java)
-
-    init {
-        sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    }
 
     @Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
     private fun <T> get(key: String, clazz: Class<T>): T =
