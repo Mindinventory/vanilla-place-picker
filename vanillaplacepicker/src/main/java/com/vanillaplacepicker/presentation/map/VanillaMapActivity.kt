@@ -398,7 +398,13 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                         Log.d(TAG, resources.getString(R.string.user_interaction_was_cancelled))
                     }
                     grantResults[0] == PackageManager.PERMISSION_GRANTED -> {
-                        ToastUtils.showToast(this, R.string.permission_granted)
+                        if (!isRequestedWithLocation) {
+                            startLocationUpdates()
+                            ToastUtils.showToast(this, R.string.permission_granted)
+                        } else {
+                            ToastUtils.showToast(this, R.string.permission_granted)
+                        }
+
                     }
                     else -> showAlertDialog(
                         R.string.missing_permission_message,
