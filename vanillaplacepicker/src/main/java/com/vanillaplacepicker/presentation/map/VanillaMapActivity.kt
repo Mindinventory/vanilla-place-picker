@@ -400,9 +400,6 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                     grantResults[0] == PackageManager.PERMISSION_GRANTED -> {
                         if (!isRequestedWithLocation) {
                             startLocationUpdates()
-                            ToastUtils.showToast(this, R.string.permission_granted)
-                        } else {
-                            ToastUtils.showToast(this, R.string.permission_granted)
                         }
 
                     }

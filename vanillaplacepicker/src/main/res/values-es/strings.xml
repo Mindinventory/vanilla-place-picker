@@ -21,7 +21,6 @@
     <string name="ok">DE ACUERDO</string>
     <string name="cancel">Cancelar</string>
     <string name="permission">Permiso</string>
-    <string name="permission_granted">Permiso concedido</string>
 
 
     <!--Map Activity-->

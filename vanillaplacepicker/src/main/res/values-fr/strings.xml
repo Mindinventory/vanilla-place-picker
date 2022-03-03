@@ -23,7 +23,6 @@
     <string name="ok">D\'accord</string>
     <string name="cancel">Annuler</string>
     <string name="permission">Autorisation</string>
-    <string name="permission_granted">Permission accordée</string>
 
     <!--Map Activity-->
     <string name="searching">Recherche…</string>
