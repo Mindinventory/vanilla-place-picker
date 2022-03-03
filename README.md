@@ -55,7 +55,7 @@ Developers often come across a requirement of adding precise location. So, a pla
     ```groovy
         dependencies {
             ...
-            implementation 'com.github.Mindinventory:VanillaPlacePicker:0.2.0'
+            implementation 'com.github.Mindinventory:VanillaPlacePicker:X.X.X'
         }
     ``` 
 	
