@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.mindinventory.placepicker.R
-import com.vanillaplacepicker.extenstion.showView
+import com.vanillaplacepicker.extenstion.show
 import com.vanillaplacepicker.presentation.builder.VanillaPlacePicker
 import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.MapType
@@ -54,7 +54,7 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
                 KeyUtils.REQUEST_PLACE_PICKER -> {
                     val vanillaAddress = VanillaPlacePicker.onActivityResult(data)
                     vanillaAddress?.let {
-                        cardviewSelectedPlace.showView()
+                        cardviewSelectedPlace.show()
                         tvSelectedPlace.text = it.formattedAddress
                     }
                 }
