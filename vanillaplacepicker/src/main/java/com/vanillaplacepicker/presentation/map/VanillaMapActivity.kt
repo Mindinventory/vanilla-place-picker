@@ -166,10 +166,10 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                             TAG,
                             "AddressResultReceiver.onReceiveResult: address: ${selectedPlace?.addressLine}"
                         )
-                        ivDone.showView()
+                        ivDone.show()
                         tvAddress.text = selectedPlace?.addressLine
                     } else {
-                        ivDone.hideView()
+                        ivDone.hide()
                     }
                 }
                 KeyUtils.FAILURE_RESULT -> {
@@ -242,7 +242,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
 
         this.googleMap?.setOnCameraMoveListener {
             tvAddress.text = getString(R.string.searching)
-            ivDone.hideView()
+            ivDone.hide()
         }
         this.googleMap?.setOnCameraIdleListener {
             val newLatLng = this@VanillaMapActivity.googleMap?.cameraPosition?.target
