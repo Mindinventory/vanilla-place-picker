@@ -8,7 +8,7 @@ android {
     compileSdkVersion 32
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 32
         versionCode 14
         versionName "0.2.1"
@@ -47,20 +47,20 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation "androidx.recyclerview:recyclerview:1.2.1"
     testImplementation 'junit:junit:4.13.2'
 
     // Location
-    api 'com.google.android.gms:play-services-location:19.0.1'
-    api 'com.google.android.gms:play-services-maps:18.0.2'
+    api 'com.google.android.gms:play-services-location:20.0.0'
+    api 'com.google.android.gms:play-services-maps:18.1.0'
 
     // Google material
-    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'com.google.android.material:material:1.6.1'
 
-    implementation "com.google.android.libraries.places:places:2.5.0"
+    implementation "com.google.android.libraries.places:places:2.6.0"
 
     //unittest
     testImplementation 'org.mockito:mockito-core:3.5.13'
@@ -74,28 +74,28 @@ repositories {
     mavenCentral()
 }
 
-// Gradle task to check Google API key availability in AndroidManifest of root project
-task validateManifest() {
-
-    def xmlSource = file("${rootDir}/app/src/main/AndroidManifest.xml")
-    def xmlParser = new XmlParser()
-    def xmlRoot = xmlParser.parse(xmlSource)
-    def metaDataNode = xmlRoot.application.'meta-data'
-    def isAPIKeyAvailable = false
-    metaDataNode.any { metadata ->
-
-        metadata.attributes().any {
-
-            if (it.value == "com.google.android.geo.API_KEY") {
-                isAPIKeyAvailable = true
-                return true
-            } else isAPIKeyAvailable = false
-        }
-
-        if (isAPIKeyAvailable)
-            return true
-    }
-
-    if (!isAPIKeyAvailable)
-        throw new RuntimeException("Couldn\'t get Google API key from application meta data. Was it set in your AndroidManifest.xml?")
-}
+//// Gradle task to check Google API key availability in AndroidManifest of root project
+//task validateManifest() {
+//
+//    def xmlSource = file("${rootDir}/app/src/main/AndroidManifest.xml")
+//    def xmlParser = new XmlParser()
+//    def xmlRoot = xmlParser.parse(xmlSource)
+//    def metaDataNode = xmlRoot.application.'meta-data'
+//    def isAPIKeyAvailable = false
+//    metaDataNode.any { metadata ->
+//
+//        metadata.attributes().any {
+//
+//            if (it.value == "com.google.android.geo.API_KEY") {
+//                isAPIKeyAvailable = true
+//                return true
+//            } else isAPIKeyAvailable = false
+//        }
+//
+//        if (isAPIKeyAvailable)
+//            return true
+//    }
+//
+//    if (!isAPIKeyAvailable)
+//        throw new RuntimeException("Couldn\'t get Google API key from application meta data. Was it set in your AndroidManifest.xml?")
+//}

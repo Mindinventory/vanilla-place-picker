@@ -1,14 +1,13 @@
 package com.mindinventory.placepicker.activity
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.mindinventory.placepicker.R
 import com.vanillaplacepicker.extenstion.show
 import com.vanillaplacepicker.presentation.builder.VanillaPlacePicker
-import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.MapType
 import com.vanillaplacepicker.utils.PickerLanguage
 import com.vanillaplacepicker.utils.PickerType
@@ -23,6 +22,17 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
         cardviewPlacePickerMap.setOnClickListener(this)
     }
 
+    var placePickerResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+                val vanillaAddress = VanillaPlacePicker.getPlaceResult(result.data)
+                vanillaAddress?.let {
+                    cardviewSelectedPlace.show()
+                    tvSelectedPlace.text = it.formattedAddress
+                }
+            }
+        }
+
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.cardviewPlacePickerSearch -> {
@@ -31,7 +41,7 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
                     .withLocation(23.0710, 72.5181)
                     .setPickerLanguage(PickerLanguage.ENGLISH)
                     .build()
-                startActivityForResult(intent, KeyUtils.REQUEST_PLACE_PICKER)
+                placePickerResultLauncher.launch(intent)
             }
 
             R.id.cardviewPlacePickerMap -> {
@@ -42,22 +52,7 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
                     .setPickerLanguage(PickerLanguage.ENGLISH)
                     .enableShowMapAfterSearchResult(true)
                     .build()
-                startActivityForResult(intent, KeyUtils.REQUEST_PLACE_PICKER)
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && data != null) {
-            when (requestCode) {
-                KeyUtils.REQUEST_PLACE_PICKER -> {
-                    val vanillaAddress = VanillaPlacePicker.onActivityResult(data)
-                    vanillaAddress?.let {
-                        cardviewSelectedPlace.show()
-                        tvSelectedPlace.text = it.formattedAddress
-                    }
-                }
+                placePickerResultLauncher.launch(intent)
             }
         }
     }

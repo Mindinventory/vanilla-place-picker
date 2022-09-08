@@ -28,12 +28,12 @@ Developers often come across a requirement of adding precise location. So, a pla
     Step 1. Add the JitPack repository in your project build.gradle:
 
     ```groovy
-	    allprojects {
-		    repositories {
-			    ...
-			    maven { url 'https://jitpack.io' }
-		    }
-	    }
+        allprojects {
+            repositories {
+                ...
+                maven { url 'https://jitpack.io' }
+            }
+        }
     ``` 
     
     **or**
@@ -41,12 +41,12 @@ Developers often come across a requirement of adding precise location. So, a pla
     If Android studio version is Arctic Fox then add it in your settings.gradle:
 
     ```groovy
-	   dependencyResolutionManagement {
-    		repositories {
-        		...
-        		maven { url 'https://jitpack.io' }
-    		}
-	   }
+       dependencyResolutionManagement {
+            repositories {
+                ...
+                maven { url 'https://jitpack.io' }
+            }
+       }
     ``` 
     Step 2. Add the dependency
     
@@ -60,9 +60,8 @@ Developers often come across a requirement of adding precise location. So, a pla
     ``` 
 	
 * Implementation
+  Step 1. Add GOOGLE MAP API KEY meta-data to your AndroidManifest.xml:
 
-    Step 1. Add GOOGLE MAP API KEY to your AndroidManifest.xml:
-    
     ```xml
       <application ... >
         ...
@@ -74,10 +73,28 @@ Developers often come across a requirement of adding precise location. So, a pla
       </application>
     ``` 
 
-    Step 2. Add VanillaPlacePicker Builder in to your activity class:
+  Step 2. Add GOOGLE MAP API KEY in your local.properties file with the same variable name as defined below (google.maps_api_key)
+  ```
+     google.maps_api_key=PLACE YOUR API KEY HERE
+  ```
+
+  Step 3. Add VanillaPlacePicker Builder in to your activity class:
     
     ```kotlin
-
+       
+       /*
+       * Defined result receiver (Now startActivityForResult is deprecated so better to use registerForActivityResult)
+       */
+      var placePickerResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+                val vanillaAddress = VanillaPlacePicker.getPlaceResult(result.data)
+            }
+        }
+       
+       /*
+        * launch caller with Intent
+       */ 
             val intent = VanillaPlacePicker.Builder(this)
                 .with(PickerType.MAP_WITH_AUTO_COMPLETE) // Select Picker type to enable autocompelte, map or both
                 .withLocation(23.057582, 72.534458)
@@ -96,22 +113,8 @@ Developers often come across a requirement of adding precise location. So, a pla
 
                 .build()
 
-            startActivityForResult(intent, REQUEST_PLACE_PICKER)
-
-        ...
-
-        //----- override onActivityResult function to get Vanilla Place Picker result.
-        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-            super.onActivityResult(requestCode, resultCode, data)
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                when (requestCode) {
-                    REQUEST_PLACE_PICKER -> {
-                         val vanillaAddress = VanillaPlacePicker.onActivityResult(data)
-                    }
-                }
-            }
-        }
-        
+            placePickerResultLauncher.launch(intent)
+                  
     ``` 
     
 ### Requirements
