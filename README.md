@@ -65,7 +65,7 @@ dependencyResolutionManagement {
       </application>
 ``` 
 
-- **Step 2. Add GOOGLE MAP API KEY in your local.properties file with the same variable name as defined below (google.maps_api_key)**
+- **Step 2. Add Google MAP API KEY in your local.properties file with the same variable name as defined below (google.maps_api_key)**
 ```bash
      google.maps_api_key=PLACE YOUR API KEY HERE
 ``` 
