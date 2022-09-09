@@ -52,25 +52,12 @@ dependencyResolutionManagement {
 ``` 
 
 ### Implementation
-- **Step 1. Add GOOGLE MAP API KEY meta-data to your AndroidManifest.xml:**
-
-```bash
-      <application ... >
-        ...
-        
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="${googleMapsApiKey}" />
-        
-      </application>
-``` 
-
-- **Step 2. Add Google MAP API KEY in your local.properties file with the same variable name as defined below (google.maps_api_key)**
+- **Step 1. Add Google MAP API KEY in your local.properties file with the same variable name as defined below (google.maps_api_key)**
 ```bash
      google.maps_api_key=PLACE YOUR API KEY HERE
 ``` 
 
-- **Step 3. Access Google MAP Api key from local.properties file in your app module build.gradle file and set that key to your AndroidManifest.xml**
+- **Step 2. To get Google MAP Api key from local.properties file, write below defined code in your app module build.gradle file**
 ```bash
        android {
   ...
@@ -83,12 +70,22 @@ dependencyResolutionManagement {
   manifestPlaceholders = [ googleMapsApiKey:"${properties.getProperty('google.maps_api_key')}"]
   }
 ``` 
+- **Step 3. Add below defined meta-data code to your AndroidManifest.xml:**
 
+```bash
+      <application ... >
+        ...
+        
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${googleMapsApiKey}" />
+        
+      </application>
+``` 
 - **Step 4. Add VanillaPlacePicker Builder in to your activity class:**
 ```bash
 
 #startActivityForResult is deprecated so better to use registerForActivityResult
-       
      var placePickerResultLauncher =
        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
@@ -97,7 +94,6 @@ dependencyResolutionManagement {
        }
        
 #Launch caller with Intent
-        
      val intent = VanillaPlacePicker.Builder(this)
         .with(PickerType.MAP_WITH_AUTO_COMPLETE) // Select Picker type to enable autocompelte, map or both
         .withLocation(23.057582, 72.534458)
