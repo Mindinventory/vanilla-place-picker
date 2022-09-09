@@ -105,7 +105,7 @@ dependencyResolutionManagement {
     
 ## Requirements
 
-* minSdkVersion >= 19
+* minSdkVersion >= 21
 * Androidx
 
 # LICENSE!
