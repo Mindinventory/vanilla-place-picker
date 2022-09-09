@@ -37,7 +37,9 @@ import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.service.FetchAddressIntentService
 import com.vanillaplacepicker.utils.*
 
-class VanillaMapActivity : VanillaBaseViewModelActivity<ActivityVanillaMapBinding,VanillaMapViewModel>(), OnMapReadyCallback,
+class VanillaMapActivity :
+    VanillaBaseViewModelActivity<ActivityVanillaMapBinding, VanillaMapViewModel>(),
+    OnMapReadyCallback,
     View.OnClickListener {
     companion object {
         private val TAG = this::class.java.simpleName
@@ -59,6 +61,21 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<ActivityVanillaMapBindin
     private val sharedPrefs by lazy { SharedPrefs(this) }
     private var fetchLocationForFirstTime = false
 
+    private var placePickerResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            when (result.resultCode) {
+                Activity.RESULT_OK -> {
+                    // data contains Place object
+                    if (vanillaConfig?.enableShowMapAfterSearchResult == true) {
+                        navigateMapToResult(result.data)
+                    } else {
+                        setResult(Activity.RESULT_OK, result.data)
+                        finish()
+                    }
+                }
+            }
+        }
+
     override fun inflateLayout(layoutInflater: LayoutInflater) =
         ActivityVanillaMapBinding.inflate(layoutInflater)
 
@@ -73,13 +90,16 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<ActivityVanillaMapBindin
         // HIDE ActionBar(if exist in style) of root project module
         supportActionBar?.hide()
         setMapPinDrawable()
-        binding.customToolbar.tvAddress.isSelected = true
-        binding.customToolbar.ivBack.setOnClickListener(this)
-        binding.customToolbar.ivDone.setOnClickListener(this)
-        if (vanillaConfig?.pickerType == PickerType.MAP_WITH_AUTO_COMPLETE) {
-            binding.customToolbar.tvAddress.setOnClickListener(this)
+        with(binding.customToolbar) {
+            tvAddress.isSelected = true
+            ivBack.setOnClickListener(this@VanillaMapActivity)
+            ivDone.setOnClickListener(this@VanillaMapActivity)
+            if (vanillaConfig?.pickerType == PickerType.MAP_WITH_AUTO_COMPLETE) {
+                tvAddress.setOnClickListener(this@VanillaMapActivity)
+            }
         }
         binding.fabLocation.setOnClickListener(this)
+
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (!isRequestedWithLocation) {
@@ -149,21 +169,6 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<ActivityVanillaMapBindin
         }
     }
 
-    var placePickerResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            when (result.resultCode) {
-                Activity.RESULT_OK -> {
-                    // data contains Place object
-                    if (vanillaConfig?.enableShowMapAfterSearchResult == true) {
-                        navigateMapToResult(result.data)
-                    } else {
-                        setResult(Activity.RESULT_OK, result.data)
-                        finish()
-                    }
-                }
-            }
-        }
-
     /**
      * Receiver for data sent from FetchAddressIntentService.
      */
@@ -181,15 +186,17 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<ActivityVanillaMapBindin
                 KeyUtils.SUCCESS_RESULT -> {
                     selectedPlace =
                         resultData.getSerializable(KeyUtils.RESULT_DATA_KEY) as GeoCoderAddressResponse
-                    if (selectedPlace?.addressLine.isRequiredField()) {
-                        Logger.d(
-                            TAG,
-                            "AddressResultReceiver.onReceiveResult: address: ${selectedPlace?.addressLine}"
-                        )
-                        binding.customToolbar.ivDone.show()
-                        binding.customToolbar.tvAddress.text = selectedPlace?.addressLine
-                    } else {
-                        binding.customToolbar.ivDone.hide()
+                    with(binding.customToolbar) {
+                        if (selectedPlace?.addressLine.isRequiredField()) {
+                            Logger.d(
+                                TAG,
+                                "AddressResultReceiver.onReceiveResult: address: ${selectedPlace?.addressLine}"
+                            )
+                            ivDone.show()
+                            tvAddress.text = selectedPlace?.addressLine
+                        } else {
+                            ivDone.hide()
+                        }
                     }
                 }
                 KeyUtils.FAILURE_RESULT -> {
@@ -261,8 +268,11 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<ActivityVanillaMapBindin
         }
 
         this.googleMap?.setOnCameraMoveListener {
-            binding.customToolbar.tvAddress.text = getString(R.string.searching)
-            binding.customToolbar.ivDone.hide()
+            with(binding.customToolbar)
+            {
+                tvAddress.text = getString(R.string.searching)
+                ivDone.hide()
+            }
         }
         this.googleMap?.setOnCameraIdleListener {
             val newLatLng = this@VanillaMapActivity.googleMap?.cameraPosition?.target

@@ -60,7 +60,7 @@ dependencyResolutionManagement {
         
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/YOUR_GOOGLE_MAPS_API_KEY" />
+            android:value="${googleMapsApiKey}" />
         
       </application>
 ``` 
@@ -70,7 +70,21 @@ dependencyResolutionManagement {
      google.maps_api_key=PLACE YOUR API KEY HERE
 ``` 
 
-- **Step 3. Add VanillaPlacePicker Builder in to your activity class:**
+- **Step 3. Access Google MAP Api key from local.properties file in your app module build.gradle file and set that key to your AndroidManifest.xml**
+```bash
+       android {
+  ...
+  defaultConfig {
+  ...
+  #Access Google MAP Api Key from local.properties file 
+  def properties = new Properties()
+  file("../local.properties").withInputStream { properties.load(it)
+  #Share the key with your `AndroidManifest.xml`
+  manifestPlaceholders = [ googleMapsApiKey:"${properties.getProperty('google.maps_api_key')}"]
+  }
+``` 
+
+- **Step 4. Add VanillaPlacePicker Builder in to your activity class:**
 ```bash
 
 #startActivityForResult is deprecated so better to use registerForActivityResult

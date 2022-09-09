@@ -122,10 +122,10 @@ class VanillaPlacePicker {
         /**
          * Get Google Places API key
          */
-        private fun getApiKey(): String {
+        private fun getApiKey(): String? {
             val metadataBundle: Bundle = BundleUtils.getMetaData(context)
             return if (metadataBundle.getString("com.google.android.geo.API_KEY").isRequiredField())
-                metadataBundle.getString("com.google.android.geo.API_KEY")!!
+                metadataBundle.getString("com.google.android.geo.API_KEY")
             else {
                 Log.e(
                     TAG,

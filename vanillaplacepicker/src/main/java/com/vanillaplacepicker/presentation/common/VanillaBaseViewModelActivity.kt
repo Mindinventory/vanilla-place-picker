@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.viewbinding.ViewBinding
 
-abstract class VanillaBaseViewModelActivity<VB : ViewBinding,T : ViewModel> : AppCompatActivity() {
+abstract class VanillaBaseViewModelActivity<VB : ViewBinding, T : ViewModel> : AppCompatActivity() {
 
     private var _binding: VB? = null
     protected val binding get() = _binding!!
@@ -34,5 +34,10 @@ abstract class VanillaBaseViewModelActivity<VB : ViewBinding,T : ViewModel> : Ap
 
     @CallSuper
     protected open fun initViews() {
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 }

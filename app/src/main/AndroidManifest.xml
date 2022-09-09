@@ -17,7 +17,7 @@
         <activity
             android:exported="true"
             android:name="com.mindinventory.placepicker.activity.SampleActivity"
-            android:screenOrientation="fullSensor">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
