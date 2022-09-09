@@ -6,29 +6,38 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.mindinventory.placepicker.R
+import com.mindinventory.placepicker.databinding.ActivitySampleBinding
 import com.vanillaplacepicker.extenstion.show
 import com.vanillaplacepicker.presentation.builder.VanillaPlacePicker
 import com.vanillaplacepicker.utils.MapType
 import com.vanillaplacepicker.utils.PickerLanguage
 import com.vanillaplacepicker.utils.PickerType
-import kotlinx.android.synthetic.main.activity_main.*
 
 class SampleActivity : AppCompatActivity(), View.OnClickListener {
 
+    private var _binding: ActivitySampleBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        cardviewPlacePickerSearch.setOnClickListener(this)
-        cardviewPlacePickerMap.setOnClickListener(this)
+        _binding = ActivitySampleBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        initClickListener()
     }
 
-    var placePickerResultLauncher =
+    private fun initClickListener() {
+        binding.cardviewPlacePickerSearch.setOnClickListener(this)
+        binding.cardviewPlacePickerMap.setOnClickListener(this)
+    }
+
+    private var placePickerResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK && result.data != null) {
                 val vanillaAddress = VanillaPlacePicker.getPlaceResult(result.data)
                 vanillaAddress?.let {
-                    cardviewSelectedPlace.show()
-                    tvSelectedPlace.text = it.formattedAddress
+                    binding.cardviewSelectedPlace.show()
+                    binding.tvSelectedPlace.text = it.formattedAddress
                 }
             }
         }

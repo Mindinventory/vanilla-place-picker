@@ -30,4 +30,5 @@
     <string name="enter_address_place">एक पता या जगह दर्ज करें</string>
     <string name="search_results_appear_here">खोज परिणाम यहां दिखाई देते हैं</string>
     <string name="something_went_worng">कुछ गलत हो गया। कृपया पुन: प्रयास करें।</string>
+    <string name="app_name">VanillaPlacePicker</string>
 </resources>

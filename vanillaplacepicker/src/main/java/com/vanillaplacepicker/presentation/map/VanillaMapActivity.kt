@@ -7,6 +7,7 @@ import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.*
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.RelativeLayout
 import androidx.activity.result.IntentSenderRequest
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.vanillaplacepicker.R
 import com.vanillaplacepicker.data.GeoCoderAddressResponse
 import com.vanillaplacepicker.data.common.AddressMapperGoogleMap
+import com.vanillaplacepicker.databinding.ActivityVanillaMapBinding
 import com.vanillaplacepicker.domain.common.SafeObserver
 import com.vanillaplacepicker.extenstion.*
 import com.vanillaplacepicker.presentation.builder.VanillaConfig
@@ -34,10 +36,8 @@ import com.vanillaplacepicker.presentation.builder.VanillaPlacePicker
 import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.service.FetchAddressIntentService
 import com.vanillaplacepicker.utils.*
-import kotlinx.android.synthetic.main.activity_vanilla_map.*
-import kotlinx.android.synthetic.main.custom_toolbar.*
 
-class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), OnMapReadyCallback,
+class VanillaMapActivity : VanillaBaseViewModelActivity<ActivityVanillaMapBinding,VanillaMapViewModel>(), OnMapReadyCallback,
     View.OnClickListener {
     companion object {
         private val TAG = this::class.java.simpleName
@@ -59,6 +59,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private val sharedPrefs by lazy { SharedPrefs(this) }
     private var fetchLocationForFirstTime = false
 
+    override fun inflateLayout(layoutInflater: LayoutInflater) =
+        ActivityVanillaMapBinding.inflate(layoutInflater)
 
     override fun buildViewModel(): VanillaMapViewModel {
         return ViewModelProvider(this, VanillaMapViewModelFactory(sharedPrefs)).get(
@@ -66,20 +68,18 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         )
     }
 
-    override fun getContentResource() = R.layout.activity_vanilla_map
-
     override fun initViews() {
         super.initViews()
         // HIDE ActionBar(if exist in style) of root project module
         supportActionBar?.hide()
         setMapPinDrawable()
-        tvAddress.isSelected = true
-        ivBack.setOnClickListener(this)
-        ivDone.setOnClickListener(this)
+        binding.customToolbar.tvAddress.isSelected = true
+        binding.customToolbar.ivBack.setOnClickListener(this)
+        binding.customToolbar.ivDone.setOnClickListener(this)
         if (vanillaConfig?.pickerType == PickerType.MAP_WITH_AUTO_COMPLETE) {
-            tvAddress.setOnClickListener(this)
+            binding.customToolbar.tvAddress.setOnClickListener(this)
         }
-        fabLocation.setOnClickListener(this)
+        binding.fabLocation.setOnClickListener(this)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (!isRequestedWithLocation) {
@@ -104,7 +104,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private fun setMapPinDrawable() {
         try {
             vanillaConfig?.mapPinDrawable?.let { pinDrawableResId ->
-                ivMarker.setImageDrawable(ContextCompat.getDrawable(this, pinDrawableResId))
+                binding.ivMarker.setImageDrawable(ContextCompat.getDrawable(this, pinDrawableResId))
             }
         } catch (e: Exception) {
             Logger.e(TAG, "Invalid drawable resource ID. Error: $e")
@@ -164,7 +164,6 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
             }
         }
 
-
     /**
      * Receiver for data sent from FetchAddressIntentService.
      */
@@ -187,10 +186,10 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                             TAG,
                             "AddressResultReceiver.onReceiveResult: address: ${selectedPlace?.addressLine}"
                         )
-                        ivDone.show()
-                        tvAddress.text = selectedPlace?.addressLine
+                        binding.customToolbar.ivDone.show()
+                        binding.customToolbar.tvAddress.text = selectedPlace?.addressLine
                     } else {
-                        ivDone.hide()
+                        binding.customToolbar.ivDone.hide()
                     }
                 }
                 KeyUtils.FAILURE_RESULT -> {
@@ -262,8 +261,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         }
 
         this.googleMap?.setOnCameraMoveListener {
-            tvAddress.text = getString(R.string.searching)
-            ivDone.hide()
+            binding.customToolbar.tvAddress.text = getString(R.string.searching)
+            binding.customToolbar.ivDone.hide()
         }
         this.googleMap?.setOnCameraIdleListener {
             val newLatLng = this@VanillaMapActivity.googleMap?.cameraPosition?.target
