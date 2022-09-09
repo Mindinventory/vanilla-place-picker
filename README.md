@@ -73,18 +73,18 @@ dependencyResolutionManagement {
 - **Step 3. Add VanillaPlacePicker Builder in to your activity class:**
 ```bash
 
-[comment]: <> (Defined result receiver &#40;Now startActivityForResult is deprecated so better to use registerForActivityResult&#41;)
+#startActivityForResult is deprecated so better to use registerForActivityResult
        
-      var placePickerResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-                val vanillaAddress = VanillaPlacePicker.getPlaceResult(result.data)
-            }
-        }
+     var placePickerResultLauncher =
+       registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+           if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+               val vanillaAddress = VanillaPlacePicker.getPlaceResult(result.data)
+           }
+       }
        
-[comment]: <> (Launch caller with Intent)
+#Launch caller with Intent
         
-      val intent = VanillaPlacePicker.Builder(this)
+     val intent = VanillaPlacePicker.Builder(this)
         .with(PickerType.MAP_WITH_AUTO_COMPLETE) // Select Picker type to enable autocompelte, map or both
         .withLocation(23.057582, 72.534458)
         .setPickerLanguage(PickerLanguage.HINDI) // Apply language to picker
@@ -99,7 +99,7 @@ dependencyResolutionManagement {
         .setMapPinDrawable(android.R.drawable.ic_menu_mylocation) // To give custom pin image for map marker
         .build()
 
-        placePickerResultLauncher.launch(intent)
+     placePickerResultLauncher.launch(intent)
                   
 ``` 
     
