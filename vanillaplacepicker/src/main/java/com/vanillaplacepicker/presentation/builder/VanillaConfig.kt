@@ -5,11 +5,11 @@ import androidx.annotation.DrawableRes
 import com.vanillaplacepicker.utils.KeyUtils
 import com.vanillaplacepicker.utils.MapType
 import com.vanillaplacepicker.utils.PickerType
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class VanillaConfig(
-    var apiKey: String = "",
+    var apiKey: String? = "",
     var pickerType: PickerType = PickerType.MAP_WITH_AUTO_COMPLETE,
     var country: String? = null,
     var latitude: Double = KeyUtils.DEFAULT_LOCATION,

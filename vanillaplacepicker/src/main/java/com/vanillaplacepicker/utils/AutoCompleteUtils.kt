@@ -32,7 +32,7 @@ object AutoCompleteUtils {
     fun getAutoCompleteIntent(context: Context, vanillaConfig: VanillaConfig): Intent {
 
         if (!Places.isInitialized())
-            Places.initialize(context.applicationContext, vanillaConfig.apiKey)
+            vanillaConfig.apiKey?.let { Places.initialize(context.applicationContext, it) }
 
         val autocomplete = Autocomplete.IntentBuilder(
             AutocompleteActivityMode.FULLSCREEN,

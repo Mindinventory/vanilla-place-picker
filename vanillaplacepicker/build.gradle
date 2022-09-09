@@ -1,17 +1,19 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-parcelize'
+}
 
-group = 'com.github.Mindinventory'
+group='com.github.Mindinventory'
 
 android {
-    compileSdkVersion 32
+    compileSdk 32
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 32
+        minSdk 21
+        targetSdk 32
         versionCode 15
-        versionName "0.2.2"
+        versionName "0.3.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -23,9 +25,6 @@ android {
         }
     }
 
-    androidExtensions {
-        experimental = true
-    }
     compileOptions {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
@@ -35,67 +34,37 @@ android {
         jvmTarget = "1.8"
     }
 
-    androidExtensions {
-        experimental = true
-    }
-
     testOptions {
         unitTests.returnDefaultValues = true
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation 'androidx.appcompat:appcompat:1.5.0'
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation "androidx.recyclerview:recyclerview:1.2.1"
     testImplementation 'junit:junit:4.13.2'
 
     // Location
-    api 'com.google.android.gms:play-services-location:19.0.1'
-    api 'com.google.android.gms:play-services-maps:18.0.2'
+    api 'com.google.android.gms:play-services-location:20.0.0'
+    api 'com.google.android.gms:play-services-maps:18.1.0'
 
     // Google material
-    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'com.google.android.material:material:1.6.1'
 
-    implementation "com.google.android.libraries.places:places:2.5.0"
+    implementation "com.google.android.libraries.places:places:2.6.0"
 
     //unittest
     testImplementation 'org.mockito:mockito-core:3.5.13'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0'
     testImplementation 'org.mockito:mockito-inline:3.5.13'
     testImplementation 'android.arch.core:core-testing:1.1.1'
-    testImplementation 'com.github.fabioCollini.daggermock:daggermock-kotlin:0.8.5'
     testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
-}
-repositories {
-    mavenCentral()
-}
-
-// Gradle task to check Google API key availability in AndroidManifest of root project
-task validateManifest() {
-
-    def xmlSource = file("${rootDir}/app/src/main/AndroidManifest.xml")
-    def xmlParser = new XmlParser()
-    def xmlRoot = xmlParser.parse(xmlSource)
-    def metaDataNode = xmlRoot.application.'meta-data'
-    def isAPIKeyAvailable = false
-    metaDataNode.any { metadata ->
-
-        metadata.attributes().any {
-
-            if (it.value == "com.google.android.geo.API_KEY") {
-                isAPIKeyAvailable = true
-                return true
-            } else isAPIKeyAvailable = false
-        }
-
-        if (isAPIKeyAvailable)
-            return true
-    }
-
-    if (!isAPIKeyAvailable)
-        throw new RuntimeException("Couldn\'t get Google API key from application meta data. Was it set in your AndroidManifest.xml?")
 }
