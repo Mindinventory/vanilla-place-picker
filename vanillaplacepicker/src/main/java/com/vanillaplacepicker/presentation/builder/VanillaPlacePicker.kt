@@ -1,6 +1,5 @@
 package com.vanillaplacepicker.presentation.builder
 
-import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -19,9 +18,9 @@ import wrap
 class VanillaPlacePicker {
 
     companion object {
-        val TAG = VanillaPlacePicker::class.java.simpleName
+        private val TAG = VanillaPlacePicker::class.java.simpleName
 
-        fun onActivityResult(data: Intent?): VanillaAddress? {
+        fun getPlaceResult(data: Intent?): VanillaAddress? {
             if (data != null) {
                 val selectedPlace = data.getSerializableExtra(KeyUtils.SELECTED_PLACE)
                 return if (selectedPlace is VanillaAddress) {
@@ -123,24 +122,16 @@ class VanillaPlacePicker {
         /**
          * Get Google Places API key
          */
-        private fun getApiKey(): String {
-            val metadataBundle: Bundle? = BundleUtils.getMetaData(context)
-            if (metadataBundle != null) {
-                return if (metadataBundle.getString("com.google.android.geo.API_KEY").isRequiredField())
-                    metadataBundle.getString("com.google.android.geo.API_KEY")!!
-                else {
-                    Log.e(
-                        TAG,
-                        "Couldn't get Google API key from application meta data. Was it set in your AndroidManifest.xml?"
-                    )
-                    ""
-                }
-            } else {
+        private fun getApiKey(): String? {
+            val metadataBundle: Bundle = BundleUtils.getMetaData(context)
+            return if (metadataBundle.getString("com.google.android.geo.API_KEY").isRequiredField())
+                metadataBundle.getString("com.google.android.geo.API_KEY")
+            else {
                 Log.e(
                     TAG,
                     "Couldn't get Google API key from application meta data. Was it set in your AndroidManifest.xml?"
                 )
-                return ""
+                ""
             }
         }
 

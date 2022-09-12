@@ -2,18 +2,19 @@ package com.vanillaplacepicker.presentation.map
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.location.LocationManager
 import android.os.*
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.RelativeLayout
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.vanillaplacepicker.R
 import com.vanillaplacepicker.data.GeoCoderAddressResponse
 import com.vanillaplacepicker.data.common.AddressMapperGoogleMap
+import com.vanillaplacepicker.databinding.ActivityVanillaMapBinding
 import com.vanillaplacepicker.domain.common.SafeObserver
 import com.vanillaplacepicker.extenstion.*
 import com.vanillaplacepicker.presentation.builder.VanillaConfig
@@ -34,12 +36,15 @@ import com.vanillaplacepicker.presentation.builder.VanillaPlacePicker
 import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.service.FetchAddressIntentService
 import com.vanillaplacepicker.utils.*
-import kotlinx.android.synthetic.main.activity_vanilla_map.*
-import kotlinx.android.synthetic.main.custom_toolbar.*
 
-class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), OnMapReadyCallback,
+class VanillaMapActivity :
+    VanillaBaseViewModelActivity<ActivityVanillaMapBinding, VanillaMapViewModel>(),
+    OnMapReadyCallback,
     View.OnClickListener {
-    private val TAG = VanillaMapActivity::class.java.simpleName
+    companion object {
+        private val TAG = this::class.java.simpleName
+    }
+
     private var mapFragment: SupportMapFragment? = null
     private var googleMap: GoogleMap? = null
     private lateinit var resultReceiver: AddressResultReceiver
@@ -47,7 +52,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private var midLatLng: LatLng? = null
     private var defaultZoomLoaded = false
     private var fusedLocationProviderClient: FusedLocationProviderClient? = null
-    private val startLocationHandler = Handler()
+    private val startLocationHandler = Handler(Looper.getMainLooper())
 
     private var vanillaConfig: VanillaConfig? = null
 
@@ -56,28 +61,45 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private val sharedPrefs by lazy { SharedPrefs(this) }
     private var fetchLocationForFirstTime = false
 
+    private var placePickerResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            when (result.resultCode) {
+                Activity.RESULT_OK -> {
+                    // data contains Place object
+                    if (vanillaConfig?.enableShowMapAfterSearchResult == true) {
+                        navigateMapToResult(result.data)
+                    } else {
+                        setResult(Activity.RESULT_OK, result.data)
+                        finish()
+                    }
+                }
+            }
+        }
+
+    override fun inflateLayout(layoutInflater: LayoutInflater) =
+        ActivityVanillaMapBinding.inflate(layoutInflater)
 
     override fun buildViewModel(): VanillaMapViewModel {
-        return ViewModelProviders.of(
-            this,
-            VanillaMapViewModelFactory(sharedPrefs)
-        )[VanillaMapViewModel::class.java]
+        return ViewModelProvider(this, VanillaMapViewModelFactory(sharedPrefs)).get(
+            VanillaMapViewModel::class.java
+        )
     }
-
-    override fun getContentResource() = R.layout.activity_vanilla_map
 
     override fun initViews() {
         super.initViews()
         // HIDE ActionBar(if exist in style) of root project module
         supportActionBar?.hide()
         setMapPinDrawable()
-        tvAddress.isSelected = true
-        ivBack.setOnClickListener(this)
-        ivDone.setOnClickListener(this)
-        if (vanillaConfig?.pickerType == PickerType.MAP_WITH_AUTO_COMPLETE) {
-            tvAddress.setOnClickListener(this)
+        with(binding.customToolbar) {
+            tvAddress.isSelected = true
+            ivBack.setOnClickListener(this@VanillaMapActivity)
+            ivDone.setOnClickListener(this@VanillaMapActivity)
+            if (vanillaConfig?.pickerType == PickerType.MAP_WITH_AUTO_COMPLETE) {
+                tvAddress.setOnClickListener(this@VanillaMapActivity)
+            }
         }
-        fabLocation.setOnClickListener(this)
+        binding.fabLocation.setOnClickListener(this)
+
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (!isRequestedWithLocation) {
@@ -85,7 +107,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         }
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
-        resultReceiver = AddressResultReceiver(Handler())
+        resultReceiver = AddressResultReceiver(Handler(Looper.getMainLooper()))
     }
 
     override fun getBundle() {
@@ -102,7 +124,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     private fun setMapPinDrawable() {
         try {
             vanillaConfig?.mapPinDrawable?.let { pinDrawableResId ->
-                ivMarker.setImageDrawable(ContextCompat.getDrawable(this, pinDrawableResId))
+                binding.ivMarker.setImageDrawable(ContextCompat.getDrawable(this, pinDrawableResId))
             }
         } catch (e: Exception) {
             Logger.e(TAG, "Invalid drawable resource ID. Error: $e")
@@ -136,10 +158,13 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                 })
                 finish()
             }
-            R.id.tvAddress -> startActivityForResult(
-                vanillaConfig?.let { AutoCompleteUtils.getAutoCompleteIntent(this, it) },
-                KeyUtils.REQUEST_PLACE_PICKER
-            )
+            R.id.tvAddress ->
+                placePickerResultLauncher.launch(vanillaConfig?.let {
+                    AutoCompleteUtils.getAutoCompleteIntent(
+                        this,
+                        it
+                    )
+                })
             R.id.fabLocation -> isGpsEnabled()
         }
     }
@@ -161,15 +186,17 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                 KeyUtils.SUCCESS_RESULT -> {
                     selectedPlace =
                         resultData.getSerializable(KeyUtils.RESULT_DATA_KEY) as GeoCoderAddressResponse
-                    if (selectedPlace?.addressLine.isRequiredField()) {
-                        Logger.d(
-                            TAG,
-                            "AddressResultReceiver.onReceiveResult: address: ${selectedPlace?.addressLine}"
-                        )
-                        ivDone.showView()
-                        tvAddress.text = selectedPlace?.addressLine
-                    } else {
-                        ivDone.hideView()
+                    with(binding.customToolbar) {
+                        if (selectedPlace?.addressLine.isRequiredField()) {
+                            Logger.d(
+                                TAG,
+                                "AddressResultReceiver.onReceiveResult: address: ${selectedPlace?.addressLine}"
+                            )
+                            ivDone.show()
+                            tvAddress.text = selectedPlace?.addressLine
+                        } else {
+                            ivDone.hide()
+                        }
                     }
                 }
                 KeyUtils.FAILURE_RESULT -> {
@@ -241,8 +268,11 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         }
 
         this.googleMap?.setOnCameraMoveListener {
-            tvAddress.text = getString(R.string.searching)
-            ivDone.hideView()
+            with(binding.customToolbar)
+            {
+                tvAddress.text = getString(R.string.searching)
+                ivDone.hide()
+            }
         }
         this.googleMap?.setOnCameraIdleListener {
             val newLatLng = this@VanillaMapActivity.googleMap?.cameraPosition?.target
@@ -346,31 +376,8 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            // Check for the integer request code originally supplied to startResolutionForResult().
-            KeyUtils.REQUEST_CHECK_SETTINGS -> when (resultCode) {
-                Activity.RESULT_CANCELED -> viewModel.fetchSavedLocation()
-                Activity.RESULT_OK -> postDelayed()
-            }
-            // Check for the integer request code originally supplied to PlacePickerActivityForResult()
-            KeyUtils.REQUEST_PLACE_PICKER -> when (resultCode) {
-                Activity.RESULT_OK -> {
-                    // data contains Place object
-                    if (vanillaConfig?.enableShowMapAfterSearchResult == true) {
-                        navigateMapToResult(data)
-                    } else {
-                        setResult(Activity.RESULT_OK, data)
-                        finish()
-                    }
-                }
-            }
-        }
-    }
-
     private fun navigateMapToResult(data: Intent?) {
-        val vanillaAddress = VanillaPlacePicker.onActivityResult(data)
+        val vanillaAddress = VanillaPlacePicker.getPlaceResult(data)
         this.googleMap?.animateCamera(
             CameraUpdateFactory.newLatLngZoom(
                 LatLng(
@@ -438,7 +445,7 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     }
 
     private val locationRequest = LocationRequest.create().apply {
-        this.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        this.priority = Priority.PRIORITY_HIGH_ACCURACY
         this.interval = KeyUtils.DEFAULT_FETCH_LOCATION_INTERVAL
     }
 
@@ -463,7 +470,12 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
                         )
                         try {
                             val rae = e as ResolvableApiException
-                            rae.startResolutionForResult(this, KeyUtils.REQUEST_CHECK_SETTINGS)
+                            registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+                                when (result.resultCode) {
+                                    Activity.RESULT_CANCELED -> viewModel.fetchSavedLocation()
+                                    Activity.RESULT_OK -> postDelayed()
+                                }
+                            }.launch(IntentSenderRequest.Builder(rae.resolution).build())
                         } catch (sie: IntentSender.SendIntentException) {
                             Logger.i(
                                 TAG,
@@ -536,20 +548,6 @@ class VanillaMapActivity : VanillaBaseViewModelActivity<VanillaMapViewModel>(), 
     }
 
     private fun isGpsEnabled() {
-        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        var isGpeEnabled = false
-        var isNetworkEnabled = false
-        try {
-            isGpeEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        } catch (e: Exception) {
-            Logger.e(TAG, "isGpsEnabled >> $e")
-        }
-
-        try {
-            isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-        } catch (e: Exception) {
-            Logger.e(TAG, "isNetworkEnabled >> $e")
-        }
         if (!fetchLocationForFirstTime) {
             startLocationUpdates()
         } else {
