@@ -85,6 +85,13 @@ class VanillaMapActivity :
         )
     }
 
+    private val launcher =  registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        when (result.resultCode) {
+            Activity.RESULT_CANCELED -> viewModel.fetchSavedLocation()
+            Activity.RESULT_OK -> postDelayed()
+        }
+    }
+
     override fun initViews() {
         super.initViews()
         // HIDE ActionBar(if exist in style) of root project module
@@ -470,12 +477,7 @@ class VanillaMapActivity :
                         )
                         try {
                             val rae = e as ResolvableApiException
-                            registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-                                when (result.resultCode) {
-                                    Activity.RESULT_CANCELED -> viewModel.fetchSavedLocation()
-                                    Activity.RESULT_OK -> postDelayed()
-                                }
-                            }.launch(IntentSenderRequest.Builder(rae.resolution).build())
+                           launcher.launch(IntentSenderRequest.Builder(rae.resolution).build())
                         } catch (sie: IntentSender.SendIntentException) {
                             Logger.i(
                                 TAG,
