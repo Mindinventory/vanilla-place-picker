@@ -9,7 +9,7 @@ Developers often come across a requirement of adding precise location. So, a pla
 ![image](/media/vanillaplacepicker-autocomplete.gif) ![image](/media/vanillaplacepicker-map.gif)
 
 ## Key features
-* Android 12 support
+* Android 13 support
 * Simple implementation for place picker either using Autocomplete, Map or both
 * Set your own custom map styles
 * Customise map pin icon
