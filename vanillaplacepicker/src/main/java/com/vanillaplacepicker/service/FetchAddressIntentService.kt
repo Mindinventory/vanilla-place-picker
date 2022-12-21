@@ -75,11 +75,11 @@ class FetchAddressIntentService : IntentService("FetchAddressIntentService") {
             // surrounding the given latitude and longitude. The results are a best guess and are
             // not guaranteed to be accurate.
             addresses = geocoder.getFromLocation(
-                    latlng.latitude,
-                    latlng.longitude,
-                    // In this sample, we get just a single address.
-                    1
-            )
+                latlng.latitude,
+                latlng.longitude,
+                // In this sample, we get just a single address.
+                1
+            ) as List<Address>
         } catch (ioException: IOException) {
             // Catch network or other I/O problems.
             Logger.e(TAG, ioException.toString())
