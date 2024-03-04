@@ -20,6 +20,7 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -36,11 +37,12 @@ import com.vanillaplacepicker.presentation.builder.VanillaPlacePicker
 import com.vanillaplacepicker.presentation.common.VanillaBaseViewModelActivity
 import com.vanillaplacepicker.service.FetchAddressIntentService
 import com.vanillaplacepicker.utils.*
+import com.google.android.gms.maps.OnMapsSdkInitializedCallback
+import com.vanillaplacepicker.data.VanillaAddress
 
 class VanillaMapActivity :
     VanillaBaseViewModelActivity<ActivityVanillaMapBinding, VanillaMapViewModel>(),
-    OnMapReadyCallback,
-    View.OnClickListener {
+    OnMapReadyCallback, View.OnClickListener, OnMapsSdkInitializedCallback {
     companion object {
         private val TAG = this::class.java.simpleName
     }
@@ -85,12 +87,13 @@ class VanillaMapActivity :
         )
     }
 
-    private val launcher =  registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-        when (result.resultCode) {
-            Activity.RESULT_CANCELED -> viewModel.fetchSavedLocation()
-            Activity.RESULT_OK -> postDelayed()
+    private val launcher =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            when (result.resultCode) {
+                Activity.RESULT_CANCELED -> viewModel.fetchSavedLocation()
+                Activity.RESULT_OK -> postDelayed()
+            }
         }
-    }
 
     override fun initViews() {
         super.initViews()
@@ -112,6 +115,7 @@ class VanillaMapActivity :
         if (!isRequestedWithLocation) {
             startLocationUpdates()
         }
+        MapsInitializer.initialize(this, MapsInitializer.Renderer.LATEST, this)
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
         resultReceiver = AddressResultReceiver(Handler(Looper.getMainLooper()))
@@ -119,7 +123,11 @@ class VanillaMapActivity :
 
     override fun getBundle() {
         if (hasExtra(KeyUtils.EXTRA_CONFIG)) {
-            vanillaConfig = intent.getParcelableExtra(KeyUtils.EXTRA_CONFIG)
+            vanillaConfig = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(KeyUtils.EXTRA_CONFIG, VanillaConfig::class.java)
+            } else {
+                intent.getParcelableExtra(KeyUtils.EXTRA_CONFIG)
+            }
         }
         if (vanillaConfig?.latitude != KeyUtils.DEFAULT_LOCATION && vanillaConfig?.longitude != KeyUtils.DEFAULT_LOCATION) {
             isRequestedWithLocation = true
@@ -155,23 +163,22 @@ class VanillaMapActivity :
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.ivBack -> onBackPressed()
+            R.id.ivBack -> onBackPressedDispatcher.onBackPressed() //onBackPressed()
             R.id.ivDone -> {
                 selectedPlace ?: return
                 setResult(Activity.RESULT_OK, Intent().apply {
-                    putExtra(
-                        KeyUtils.SELECTED_PLACE,
+                    putExtra(KeyUtils.SELECTED_PLACE,
                         selectedPlace?.let { AddressMapperGoogleMap.apply(it) })
                 })
                 finish()
             }
-            R.id.tvAddress ->
-                placePickerResultLauncher.launch(vanillaConfig?.let {
-                    AutoCompleteUtils.getAutoCompleteIntent(
-                        this,
-                        it
-                    )
-                })
+
+            R.id.tvAddress -> placePickerResultLauncher.launch(vanillaConfig?.let {
+                AutoCompleteUtils.getAutoCompleteIntent(
+                    this, it
+                )
+            })
+
             R.id.fabLocation -> isGpsEnabled()
         }
     }
@@ -191,8 +198,18 @@ class VanillaMapActivity :
             }
             when (resultCode) {
                 KeyUtils.SUCCESS_RESULT -> {
-                    selectedPlace =
+                    /*selectedPlace =
+                        resultData.getSerializable(KeyUtils.RESULT_DATA_KEY) as GeoCoderAddressResponse*/
+
+                    selectedPlace = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        resultData.getSerializable(
+                            KeyUtils.RESULT_DATA_KEY,
+                            GeoCoderAddressResponse::class.java
+                        )
+                    } else {
                         resultData.getSerializable(KeyUtils.RESULT_DATA_KEY) as GeoCoderAddressResponse
+                    }
+
                     with(binding.customToolbar) {
                         if (selectedPlace?.addressLine.isRequiredField()) {
                             Logger.d(
@@ -206,14 +223,28 @@ class VanillaMapActivity :
                         }
                     }
                 }
+
                 KeyUtils.FAILURE_RESULT -> {
                     val errorMessage = resultData.getString(KeyUtils.RESULT_MESSAGE_KEY)
                     ToastUtils.showToast(this@VanillaMapActivity, errorMessage)
                 }
+
                 else -> {
                     // make address empty
                 }
             }
+        }
+    }
+
+    override fun onMapsSdkInitialized(renderer: MapsInitializer.Renderer) {
+        when (renderer) {
+            MapsInitializer.Renderer.LATEST -> Log.d(
+                "MapsDemo", "The latest version of the renderer is used."
+            )
+
+            MapsInitializer.Renderer.LEGACY -> Log.d(
+                "MapsDemo", "The legacy version of the renderer is used."
+            )
         }
     }
 
@@ -224,21 +255,18 @@ class VanillaMapActivity :
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
         this.googleMap?.clear()
-        if (vanillaConfig?.enableSatelliteView == true)
-            this.googleMap?.mapType = GoogleMap.MAP_TYPE_SATELLITE
+        if (vanillaConfig?.enableSatelliteView == true) this.googleMap?.mapType =
+            GoogleMap.MAP_TYPE_SATELLITE
 
         // Customise the styling of the base map using a JSON object defined...
         try {
             // ...in a raw resource file.
             if (vanillaConfig?.mapStyleJSONResId != KeyUtils.DEFAULT_STYLE_JSON_RESID) {
-                this.googleMap?.setMapStyle(
-                    vanillaConfig?.let {
-                        MapStyleOptions.loadRawResourceStyle(
-                            this@VanillaMapActivity,
-                            it.mapStyleJSONResId
-                        )
-                    }
-                )
+                this.googleMap?.setMapStyle(vanillaConfig?.let {
+                    MapStyleOptions.loadRawResourceStyle(
+                        this@VanillaMapActivity, it.mapStyleJSONResId
+                    )
+                })
             }
             // ...in a string resource file.
             this.googleMap?.mapType = vanillaConfig.let { it?.mapType?.value!! }
@@ -255,9 +283,7 @@ class VanillaMapActivity :
                 }
         if (cameraUpdateDefaultLocation != null) {
             this.googleMap?.animateCamera(
-                cameraUpdateDefaultLocation,
-                KeyUtils.GOOGLE_MAP_CAMERA_ANIMATE_DURATION,
-                null
+                cameraUpdateDefaultLocation, KeyUtils.GOOGLE_MAP_CAMERA_ANIMATE_DURATION, null
             )
         }
         /**
@@ -268,15 +294,13 @@ class VanillaMapActivity :
         vanillaConfig?.zoneRect?.let {
             this.googleMap?.setLatLngBoundsForCameraTarget(
                 LatLngBounds(
-                    it.lowerLeft,
-                    it.upperRight
+                    it.lowerLeft, it.upperRight
                 )
             )
         }
 
         this.googleMap?.setOnCameraMoveListener {
-            with(binding.customToolbar)
-            {
+            with(binding.customToolbar) {
                 tvAddress.text = getString(R.string.searching)
                 ivDone.hide()
             }
@@ -316,8 +340,7 @@ class VanillaMapActivity :
 
         changeLocationCompassButtonPosition()
         if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
+                this, Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             this.googleMap?.isMyLocationEnabled = true
@@ -334,8 +357,9 @@ class VanillaMapActivity :
     private fun changeLocationCompassButtonPosition() {
         try {
             val locationCompassButton =
-                (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
-                    .findViewById<View>(Integer.parseInt("5"))
+                (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View).findViewById<View>(
+                    Integer.parseInt("5")
+                )
             val rlp = locationCompassButton.layoutParams as RelativeLayout.LayoutParams
             rlp.addRule(RelativeLayout.ALIGN_PARENT_START, 0)
             rlp.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE)
@@ -352,8 +376,9 @@ class VanillaMapActivity :
     * */
     private fun changeMyLocationButtonPosition() {
         val locationButton =
-            (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View)
-                .findViewById<View>(Integer.parseInt("2"))
+            (mapFragment?.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View).findViewById<View>(
+                Integer.parseInt("2")
+            )
         val rlp = locationButton.layoutParams as RelativeLayout.LayoutParams
         rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0)
         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE)
@@ -390,11 +415,8 @@ class VanillaMapActivity :
                 LatLng(
                     vanillaAddress?.latitude ?: KeyUtils.DEFAULT_LOCATION,
                     vanillaAddress?.longitude ?: KeyUtils.DEFAULT_LOCATION
-                ),
-                KeyUtils.DEFAULT_ZOOM_LEVEL
-            ),
-            KeyUtils.GOOGLE_MAP_CAMERA_ANIMATE_DURATION,
-            null
+                ), KeyUtils.DEFAULT_ZOOM_LEVEL
+            ), KeyUtils.GOOGLE_MAP_CAMERA_ANIMATE_DURATION, null
         )
     }
 
@@ -411,21 +433,22 @@ class VanillaMapActivity :
                         // If user interaction was interrupted, the permission request is cancelled and you receive empty arrays.
                         Log.d(TAG, resources.getString(R.string.user_interaction_was_cancelled))
                     }
+
                     grantResults[0] == PackageManager.PERMISSION_GRANTED -> {
                         if (!isRequestedWithLocation) {
                             startLocationUpdates()
                         }
 
                     }
-                    else -> showAlertDialog(
-                        R.string.missing_permission_message,
+
+                    else -> showAlertDialog(R.string.missing_permission_message,
                         R.string.missing_permission_title,
                         R.string.permission,
-                        R.string.cancel, {
+                        R.string.cancel,
+                        {
                             // this mean user has clicked on permission button to update run time permission.
                             openAppSetting()
-                        }
-                    )
+                        })
                 }
             }
         }
@@ -434,10 +457,11 @@ class VanillaMapActivity :
     private fun startLocationRequestPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // this mean device os is greater or equal to Marshmallow.
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+            if (ActivityCompat.checkSelfPermission(
                     this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this, Manifest.permission.ACCESS_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 // here we are going to request location run time permission.
@@ -451,13 +475,17 @@ class VanillaMapActivity :
         }
     }
 
-    private val locationRequest = LocationRequest.create().apply {
+    private val locationRequest = LocationRequest.Builder(
+        Priority.PRIORITY_HIGH_ACCURACY,
+        KeyUtils.DEFAULT_FETCH_LOCATION_INTERVAL
+    ).build()
+    /*.apply {
         this.priority = Priority.PRIORITY_HIGH_ACCURACY
         this.interval = KeyUtils.DEFAULT_FETCH_LOCATION_INTERVAL
-    }
+    }*/
 
-    private val locationSettingRequest = LocationSettingsRequest.Builder()
-        .addLocationRequest(locationRequest)
+    private val locationSettingRequest =
+        LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
 
     /**
      * this method will check required for location and according to result it will go ahead for fetching location.
@@ -465,28 +493,26 @@ class VanillaMapActivity :
     private fun startLocationUpdates() {
         // Begin by checking if the device has the necessary location settings.
         LocationServices.getSettingsClient(this)
-            .checkLocationSettings(locationSettingRequest.build())
-            .addOnSuccessListener(this) {
+            .checkLocationSettings(locationSettingRequest.build()).addOnSuccessListener(this) {
                 getLocationFromFusedLocation()
             }.addOnFailureListener(this) { e ->
                 when ((e as ApiException).statusCode) {
                     LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
                         Logger.i(
-                            TAG,
-                            resources.getString(R.string.location_settings_are_not_satisfied)
+                            TAG, resources.getString(R.string.location_settings_are_not_satisfied)
                         )
                         try {
                             val rae = e as ResolvableApiException
-                           launcher.launch(IntentSenderRequest.Builder(rae.resolution).build())
+                            launcher.launch(IntentSenderRequest.Builder(rae.resolution).build())
                         } catch (sie: IntentSender.SendIntentException) {
                             Logger.i(
-                                TAG,
-                                getString(R.string.pendingintent_unable_to_execute_request)
+                                TAG, getString(R.string.pendingintent_unable_to_execute_request)
                             )
                             viewModel.fetchSavedLocation()
                             sie.printStackTrace()
                         }
                     }
+
                     LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
                         val errorMessage =
                             resources.getString(R.string.location_settings_are_inadequate_and_cannot_be_fixed_here)
@@ -499,11 +525,11 @@ class VanillaMapActivity :
 
     private fun getLocationFromFusedLocation() {
         if (ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
                 this,
-                Manifest.permission.ACCESS_FINE_LOCATION
+                Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
         ) {
             return
         }
@@ -511,8 +537,7 @@ class VanillaMapActivity :
         fusedLocationProviderClient?.flushLocations()
         Looper.myLooper()?.let {
             fusedLocationProviderClient?.requestLocationUpdates(
-                locationRequest,
-                object : LocationCallback() {
+                locationRequest, object : LocationCallback() {
                     override fun onLocationResult(locationResult: LocationResult) {
                         super.onLocationResult(locationResult)
                         val location = locationResult.lastLocation
@@ -532,8 +557,7 @@ class VanillaMapActivity :
                             viewModel.fetchSavedLocation()
                         }
                     }
-                },
-                it
+                }, it
             )
         }
     }

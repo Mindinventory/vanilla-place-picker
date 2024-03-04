@@ -3,6 +3,7 @@ package com.vanillaplacepicker.presentation.builder
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import com.google.android.gms.maps.model.LatLng
@@ -11,7 +12,12 @@ import com.vanillaplacepicker.data.VanillaAddress
 import com.vanillaplacepicker.data.common.AutoCompleteAddressDetailsMapper
 import com.vanillaplacepicker.extenstion.isRequiredField
 import com.vanillaplacepicker.presentation.map.VanillaMapActivity
-import com.vanillaplacepicker.utils.*
+import com.vanillaplacepicker.utils.AutoCompleteUtils
+import com.vanillaplacepicker.utils.BundleUtils
+import com.vanillaplacepicker.utils.KeyUtils
+import com.vanillaplacepicker.utils.MapType
+import com.vanillaplacepicker.utils.PickerLanguage
+import com.vanillaplacepicker.utils.PickerType
 import wrap
 
 
@@ -22,7 +28,15 @@ class VanillaPlacePicker {
 
         fun getPlaceResult(data: Intent?): VanillaAddress? {
             if (data != null) {
-                val selectedPlace = data.getSerializableExtra(KeyUtils.SELECTED_PLACE)
+                val selectedPlace =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        data.getSerializableExtra(
+                            KeyUtils.SELECTED_PLACE,
+                            VanillaAddress::class.java
+                        )
+                    } else {
+                        data.getSerializableExtra(KeyUtils.SELECTED_PLACE)
+                    }
                 return if (selectedPlace is VanillaAddress) {
                     selectedPlace
                 } else {

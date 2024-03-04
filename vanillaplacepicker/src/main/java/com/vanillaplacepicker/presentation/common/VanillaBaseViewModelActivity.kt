@@ -1,13 +1,14 @@
 package com.vanillaplacepicker.presentation.common
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.viewbinding.ViewBinding
 
-abstract class VanillaBaseViewModelActivity<VB : ViewBinding, T : ViewModel> : AppCompatActivity() {
+abstract class VanillaBaseViewModelActivity<VB : ViewBinding, T : ViewModel> : AppCompatActivity(){
 
     private var _binding: VB? = null
     protected val binding get() = _binding!!
@@ -40,4 +41,6 @@ abstract class VanillaBaseViewModelActivity<VB : ViewBinding, T : ViewModel> : A
         super.onDestroy()
         _binding = null
     }
+
+
 }
