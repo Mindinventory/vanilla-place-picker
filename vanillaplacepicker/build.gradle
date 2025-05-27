@@ -8,11 +8,11 @@ group='com.github.Mindinventory'
 
 android {
     namespace 'com.vanillaplacepicker'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         minSdk 21
-        targetSdk 34
+        targetSdk 35
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -25,8 +25,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     testOptions {

@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace 'com.mindinventory.placepicker'
-    compileSdk 34
+    compileSdk 35
     defaultConfig {
         applicationId "com.mindinventory.placepicker"
         minSdk 21
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -21,7 +21,8 @@ android {
         file("../local.properties").withInputStream { properties.load(it) }
 
         // Share the key with your `AndroidManifest.xml`
-        manifestPlaceholders = [ googleMapsApiKey:"${properties.getProperty('google.maps_api_key')}"]
+        //manifestPlaceholders = [ googleMapsApiKey:"${properties.getProperty('google.maps_api_key')}"]
+        manifestPlaceholders = [googleMapsApiKey: project.properties["google.maps_api_key"] ?: ""]
     }
     buildTypes {
         release {
@@ -33,8 +34,8 @@ android {
         viewBinding true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 }
 
@@ -42,6 +43,9 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "androidx.appcompat:appcompat:1.6.1"
     implementation "androidx.cardview:cardview:1.0.0"
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.activity:activity:1.10.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
     testImplementation 'junit:junit:4.13.2'
     implementation project(path: ':vanillaplacepicker')

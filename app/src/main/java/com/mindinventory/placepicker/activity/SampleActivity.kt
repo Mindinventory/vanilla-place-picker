@@ -2,10 +2,15 @@ package com.mindinventory.placepicker.activity
 
 import android.app.Activity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.get
 import com.mindinventory.placepicker.R
+import com.mindinventory.placepicker.activity.AppUtil.adjustContentBelowActionBar
 import com.mindinventory.placepicker.databinding.ActivitySampleBinding
 import com.vanillaplacepicker.extenstion.show
 import com.vanillaplacepicker.presentation.builder.VanillaPlacePicker
@@ -23,6 +28,7 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
         _binding = ActivitySampleBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        adjustContentBelowActionBar(binding.root[0])
         initClickListener()
     }
 
