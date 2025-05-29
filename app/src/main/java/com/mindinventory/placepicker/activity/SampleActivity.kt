@@ -1,13 +1,9 @@
 package com.mindinventory.placepicker.activity
 
-import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
 import androidx.core.view.get
 import com.mindinventory.placepicker.R
 import com.mindinventory.placepicker.activity.AppUtil.adjustContentBelowActionBar
@@ -28,7 +24,6 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
         _binding = ActivitySampleBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        adjustContentBelowActionBar(binding.root[0])
         initClickListener()
     }
 
@@ -39,7 +34,7 @@ class SampleActivity : AppCompatActivity(), View.OnClickListener {
 
     private var placePickerResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            if (result.resultCode == RESULT_OK && result.data != null) {
                 val vanillaAddress = VanillaPlacePicker.getPlaceResult(result.data)
                 vanillaAddress?.let {
                     binding.cardviewSelectedPlace.show()

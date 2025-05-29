@@ -8,14 +8,22 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="8dp">
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolBarVanillaPlacePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="Vanilla Place Picker"
+            app:titleTextColor="#FFFFFF"
+            android:background="@color/colorPrimary"/>
 
         <!--START Place Picker Search/Map-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:padding="8dp"
             android:weightSum="2">
 
             <!--Place Picker (Search)-->
@@ -98,6 +106,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            android:paddingHorizontal="8dp"
+            android:paddingTop="8dp"
             android:visibility="gone"
             app:cardCornerRadius="3dp">
 
